@@ -17,7 +17,8 @@ this .h file
 """
 
 header = """
-extern void ffi_sample(void);
+extern void hello_world(void);
+extern int sumup(int);
 """
 
 with open(build_path + "hello_plugin.h", "w") as f:
@@ -35,10 +36,17 @@ ffi_builder.set_source("hello_plugin", r'''
 
 module = """
 from hello_plugin import ffi
+import functools
 
 @ffi.def_extern()
-def ffi_sample():
+def hello_world():
     print("hello world!")
+    
+@ffi.def_extern()
+def sumup(limit:int)->int:
+   res = sum(range(limit + 1)) 
+   return res    
+
 """
 
 ffi_builder.embedding_init_code(module)
