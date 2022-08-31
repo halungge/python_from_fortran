@@ -1,3 +1,5 @@
 .venv
 .idea
 build/
+*.egg*
+__pycache__/
