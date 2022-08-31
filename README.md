@@ -38,10 +38,9 @@ in Fortran, which we don't want to do I guess...
 see `src/forpy_sample`
 ### compile and run
 the file `forpy_mod.F90` has been copied from `https://github.com/ylikx/forpy`
-```commandline
-> gfortran -c forpy_mod.F90
-> gfortran simple_forpy_example.f90 forpy_mod.o `python3-config --ldflags --embed`
-
+```bash
+gfortran -c forpy_mod.F90
+gfortran simple_forpy_example.f90 forpy_mod.o `python3-config --ldflags --embed`
 ```
 
 ## plain CFFI example
@@ -51,19 +50,28 @@ see `src/ffi_sample`
 #### compile and run
 
 1. compiling the ffi C bindings: 
-```
-> python hello_world_ffi_wrapper.py 
+```bash
+cd src/cffi_sample
+python sample_cffi_wrapper.py 
 ```
 this generates a `.h` (because write it by hand in the code), `.c` (because `ffi_builder.emit_c_code()` is called) a `.o` and `lib*.so` file in the `$project/build` folder
 
 2. compile the fortran example
 ```
-> gfortran -o ../../build/hello_f test_hello_world.f90 -L../../build -lhello_plugin
+cd src/cffi_sample
+gfortran -o ../../build/sample_f run_cffi_sample.f90 -L../../build -lsample_plugin
 ```
 and run it
 ```
-cd ../../build
+> cd ../../build
 > export LD_LIBRARY_PATH=/home/magdalena/Projects/exclaim/fortran_stuff/py4f/build/:$LD_LIBRARY_PATH
-. ./hello_f
+> ./hello_f
 hello world!
+```
+
+there is a corresponding C program `run_cffi_sample.c` which calls the same python functions 
+via the C wrapper from C.
+```
+cd src/cffi_sample
+gcc -o ../../build/sample_c run_cffi_sample.c -L../../build -lsample_plugin
 ```
