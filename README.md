@@ -4,19 +4,40 @@
 * [python embedding] (https://docs.python.org/2/extending/)
 
 ## Options and Tools
-* using CFFI: 
-  * [example blog post](https://www.noahbrenowitz.com/post/calling-fortran-from-python/) and corresponding [github repo] (https://github.com/nbren12/call_py_fort)
-    * [CFFI for embedding](https://cffi.readthedocs.io/en/latest/embedding.html)
-* [ForPy](https://github.com/ylikx/forpy) : is actually a library for embedding python written in Fortran
+### using CFFI: 
+  * [CFFI for embedding](https://cffi.readthedocs.io/en/latest/embedding.html)
+  * [example blog post](https://www.noahbrenowitz.com/post/calling-fortran-from-python/) and corresponding [github repo] (https://github.com/nbren12/call_py_fort) This repository adds a library 
+wrapper around the CFFI mechanism that is explained in the blog post. On top of  the plain CFFI wrapper and Fortran C Bindings it supports passing  data back and 
+forth by packaging everything (including function names) in a STATE dict.
+  
+### [ForPy](https://github.com/ylikx/forpy):
+is a library for embedding python written in Fortran. You initialize (and shutdown) the python runtime directly from 
+within your fortran program. Python types are also created (and used) within the Fortran program and 
+can then be cast into Fortran types.
+
   * (+) **small**, **readable code** 
   * (+) supports quite a few basic python data types, also "general python objects", and numpy arrays,
-  * (?) how extendable is?, can we use it with our datatypes. It might need lots of extending the library *in fortran* which we (I assume) don't want to do.
-  * (?) types can be converted via cast function
-* [f2py] (https://numpy.org/doc/stable/f2py/) that does it the other way round. But according to stackoverflow discussion above can also  be used
+  * (?) how extendable is it?, can we use it with our datatypes. It might need lots of extending the library *in fortran* which we (I assume) don't want to do.
+  * (?) types can be converted via cast function from python -> Fortran
+
+In order to use we would have to further encapsulate the library and do the data mapping
+in Fortran, which we don't want to do I guess...
+
+### Others:
+* [f2py](https://numpy.org/doc/stable/f2py/) that does it the other way round. But according to stackoverflow discussion above can also  be used
 * ~~[forcallpy](https://forcallpy.readthedocs.io/en/latest/)~~ repo does not exist anymore
 
+## ForPy example
+see `src/forpy_sample`
+### compile and run
+the file `forpy_mod.F90` has been copied from `https://github.com/ylikx/forpy`
+```commandline
+> gfortran -c forpy_mod.F90
+> gfortran simple_forpy_example.f90 forpy_mod.o `python3-config --ldflags --embed`
 
-## FFI example
+```
+
+## CFFI example
 see `src/ffi_sample`
 ### TODOs
 * [ ] setup.py, setup.cfg, toml...

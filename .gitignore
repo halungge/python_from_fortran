@@ -3,3 +3,7 @@
 build/
 *.egg*
 __pycache__/
+a.out
+*.mod
+*.o
+*.so
