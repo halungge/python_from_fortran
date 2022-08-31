@@ -17,7 +17,7 @@ this .h file
 """
 
 header = """
-extern void ffi_sample(void);
+extern void cffi_sample(void);
 """
 
 with open(build_path + "hello_plugin.h", "w") as f:
@@ -37,7 +37,7 @@ module = """
 from hello_plugin import ffi
 
 @ffi.def_extern()
-def ffi_sample():
+def cffi_sample():
     print("hello world!")
 """
 
