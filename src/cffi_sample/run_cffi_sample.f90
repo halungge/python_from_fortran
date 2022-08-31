@@ -1,4 +1,4 @@
-! test_hello_world.f90
+! run_cffi_sample.f90
 program call_python
   use, intrinsic :: iso_c_binding
   implicit none

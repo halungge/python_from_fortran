@@ -52,13 +52,15 @@ see `src/ffi_sample`
 
 1. compiling the ffi C bindings: 
 ```
-> python hello_world_ffi_wrapper.py 
+> cd src/cffi_sample
+> python sample_cffi_wrapper.py 
 ```
 this generates a `.h` (because write it by hand in the code), `.c` (because `ffi_builder.emit_c_code()` is called) a `.o` and `lib*.so` file in the `$project/build` folder
 
 2. compile the fortran example
 ```
-> gfortran -o ../../build/hello_f test_hello_world.f90 -L../../build -lhello_plugin
+> cd src/cffi_sample
+> gfortran -o ../../build/sample_f run_cffi_sample.f90 -L../../build -lsample_plugin
 ```
 and run it
 ```

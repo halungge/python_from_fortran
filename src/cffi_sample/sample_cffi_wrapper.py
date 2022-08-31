@@ -17,10 +17,10 @@ this .h file
 """
 
 header = """
-extern void cffi_sample(void);
+extern void hello_world(void);
 """
 
-with open(build_path + "hello_plugin.h", "w") as f:
+with open(build_path + "sample_plugin.h", "w") as f:
     f.write(header)
 
 ffi_builder.embedding_api(header)
@@ -29,18 +29,18 @@ define the modules name from the Python point of view:
     makes this module available under module name to the python code (see below in 'module'),
     add additional C code, possibly constants, other includes...
 """
-ffi_builder.set_source("hello_plugin", r'''
-    #include "hello_plugin.h"
+ffi_builder.set_source("sample_plugin", r'''
+    #include "sample_plugin.h"
 ''')
 
 module = """
-from hello_plugin import ffi
+from sample_plugin import ffi
 
 @ffi.def_extern()
-def cffi_sample():
+def hello_world():
     print("hello world!")
 """
 
 ffi_builder.embedding_init_code(module)
-ffi_builder.emit_c_code(build_path + "hello_plugin.c")
-ffi_builder.compile(tmpdir=build_path, target="libhello_plugin.*", verbose=True)
+ffi_builder.emit_c_code(build_path + "sample_plugin.c")
+ffi_builder.compile(tmpdir=build_path, target="libsample_plugin.*", verbose=True)
