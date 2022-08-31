@@ -18,6 +18,7 @@ this .h file
 
 header = """
 extern void hello_world(void);
+extern int sumup(int);
 """
 
 with open(build_path + "sample_plugin.h", "w") as f:
@@ -39,6 +40,12 @@ from sample_plugin import ffi
 @ffi.def_extern()
 def hello_world():
     print("hello world!")
+    
+@ffi.def_extern()
+def sumup(limit: int) -> int:
+    res = sum(range(limit + 1))
+    print(f'python-print: summing up to {limit} = {res}')
+    return res
 """
 
 ffi_builder.embedding_init_code(module)
