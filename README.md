@@ -8,7 +8,14 @@
   * [CFFI for embedding](https://cffi.readthedocs.io/en/latest/embedding.html)
   * [example blog post](https://www.noahbrenowitz.com/post/calling-fortran-from-python/) and corresponding [github repo] (https://github.com/nbren12/call_py_fort) This repository adds a library 
 wrapper around the CFFI mechanism that is explained in the blog post. On top of  the plain CFFI wrapper and Fortran C Bindings it supports passing  data back and 
-forth by packaging everything (including function names) in a STATE dict.
+forth by packaging everything (including function names) in a STATE dict. The python functions used with the library all take this STATE dict as an argument and extract their "real" argument from it and set them back into the STATE, for example
+```
+def function(STATE):
+    count = STATE.get("count", 0)
+    # this code runs every function call
+    print(f"function call_count {count}")
+    STATE["count"] = count + 1
+```
   
 ### [ForPy](https://github.com/ylikx/forpy):
 is a library for embedding python written in Fortran. You initialize (and shutdown) the python runtime directly from 
@@ -39,9 +46,6 @@ the file `forpy_mod.F90` has been copied from `https://github.com/ylikx/forpy`
 
 ## CFFI example
 see `src/ffi_sample`
-### TODOs
-* [ ] setup.py, setup.cfg, toml...
-* [ ] fix doc strings in python code
 
 
 #### compile and run
