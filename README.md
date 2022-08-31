@@ -44,7 +44,7 @@ the file `forpy_mod.F90` has been copied from `https://github.com/ylikx/forpy`
 
 ```
 
-## CFFI example
+## plain CFFI example
 see `src/ffi_sample`
 
 
