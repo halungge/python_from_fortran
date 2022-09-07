@@ -1,5 +1,5 @@
 import numpy as np
-#from field_plugin import ffi
+
 
 from functional.ffront.fbuiltins import Dimension, Field, float64
 from functional.ffront.decorator import field_operator, program
@@ -18,11 +18,13 @@ def multiply_fields(a: Field[[CellDim, KDim], float64], b:Field[[CellDim, KDim],
     _multiply_fields(a, b, out=result)
 
 
-#@ffi.def_extern()
-def ffi_square(a: np.ndarray):
+
+
+def square_ar(a: np.ndarray)->np.array:
     a_field = np_as_located_field(CellDim, KDim)(a)
     result = np_as_located_field(CellDim, KDim)(np.zeros(a.shape, dtype=float64))
     multiply_fields(a_field, a_field, result, offset_provider={})
+    return np.asarray(result)
 
 
 def square(state):
