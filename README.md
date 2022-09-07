@@ -43,6 +43,38 @@ gfortran -c forpy_mod.F90
 gfortran simple_forpy_example.f90 forpy_mod.o `python3-config --ldflags --embed`
 ```
 
+## call py fort example
+uses library from https://github.com/nbren12/call_py_fort
+1. clone call_py_fort
+```bash
+mkdir -p lib
+cd lib
+git clone git@github.com:nbren12/call_py_fort.git
+```
+2. build the library
+```commandline
+cd call_py_fort
+mkdir build
+cmake ..
+make
+```
+3. build and run the fortran code 
+```
+> 
+> export LIB=../../lib/call_py_fort/build/src/
+> gfortran -I$LIB -Wl,-rpath=$LIB -L$LIB  field_functions.f90 -lcallpy
+> ./a.out
+printing from python input =  [[1. 1. 2. 3. 5. 8.]
+ [1. 1. 2. 3. 5. 8.]
+ [1. 1. 2. 3. 5. 8.]]
+.venv/src/gt4py-functional/src/functional/ffront/decorator.py:235: UserWarning: Field View Program 'multiply_fields': Using default (<function executor at 0x7f9e1ac8add0>) backend.
+  warnings.warn(
+printing from python output =  [[ 1.  1.  4.  9. 25. 64.]
+ [ 1.  1.  4.  9. 25. 64.]
+ [ 1.  1.  4.  9. 25. 64.]]
+   1.0000000000000000        1.0000000000000000        4.0000000000000000        9.0000000000000000        25.000000000000000        64.000000000000000        1.0000000000000000        1.0000000000000000        4.0000000000000000        9.0000000000000000        25.000000000000000        64.000000000000000        1.0000000000000000        1.0000000000000000        4.0000000000000000        9.0000000000000000        25.000000000000000        64.000000000000000     
+
+```
 ## plain CFFI example
 see `src/ffi_sample`
 
