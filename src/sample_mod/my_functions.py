@@ -1,3 +1,6 @@
+# flake8: noqa D100, D103
+
+
 def sumup(limit: int) -> int:
     res = sum(range(limit + 1))
     print(f"python-print: summing up to {limit} = {res}")
