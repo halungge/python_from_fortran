@@ -141,7 +141,7 @@ The process works analogousely for the field example
 ```bash
 > cd src/cffi_field_sample
 > mkdir build
-> python field_functions_wrapper.py
+> python cffi_fieldplugin_builder.py
 > export LIB=./build
 > gfortran -I$LIB -Wl,-rpath=$LIB -L$LIB  run_field_sample.f90 -lfield_plugin
 ./a.out
