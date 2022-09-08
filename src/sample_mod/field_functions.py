@@ -1,3 +1,5 @@
+# flake8: noqa D100, D103
+
 import numpy as np
 from functional.ffront.decorator import field_operator, program
 from functional.ffront.fbuiltins import Dimension, Field, float64

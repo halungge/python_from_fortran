@@ -1,3 +1,4 @@
+"""build a cffi module that publish a field function."""
 import cffi
 
 builder = cffi.FFI()

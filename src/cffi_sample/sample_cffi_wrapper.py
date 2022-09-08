@@ -1,6 +1,4 @@
-"""
-defines a plugin called hello_plugin
-"""
+"""defines a plugin called hello_plugin."""
 
 import cffi
 
@@ -11,10 +9,9 @@ build_path = "./build/"
 """
 define the api that we want to export in the DLL
 
-if we had an existing C library with a .h file we could read that in and pass it to the ffi_builder.embedding_api()
-we don't have that here so we define it inline and write a C type .h file, 
-
-this .h file 
+if we had an existing C library with a .h file we could read that
+in and pass it to the ffi_builder.embedding_api()
+we don't have that here so we define it inline and write a C type .h file
 """
 
 header = """
@@ -28,7 +25,8 @@ with open(build_path + "sample_plugin.h", "w") as f:
 ffi_builder.embedding_api(header)
 """
 define the modules name from the Python point of view:
-    makes this module available under module name to the python code (see below in 'module'),
+    makes this module available under module name
+    to the python code (see below in 'module'),
     add additional C code, possibly constants, other includes...
 """
 ffi_builder.set_source(
@@ -44,7 +42,7 @@ from sample_plugin import ffi
 @ffi.def_extern()
 def hello_world():
     print("hello world!")
-    
+
 @ffi.def_extern()
 def sumup(limit: int) -> int:
     res = sum(range(limit + 1))

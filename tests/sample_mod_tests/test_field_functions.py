@@ -1,5 +1,5 @@
+# noqa: D100
 import numpy as np
-import pytest
 from functional.ffront.fbuiltins import float64
 
 import sample_mod.field_functions

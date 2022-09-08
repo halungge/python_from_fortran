@@ -57,7 +57,8 @@ repos:
     - pygments
     exclude: |
       (?x)^(
-      setup.py
+      setup.py|
+      tests/sample_mod_tests/.*
       )$
 
 - repo: https://github.com/pre-commit/mirrors-mypy
