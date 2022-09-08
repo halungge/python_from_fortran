@@ -5,7 +5,7 @@ defines a plugin called hello_plugin
 import cffi
 ffi_builder = cffi.FFI()
 
-build_path = "../../build/"
+build_path = "./build/"
 
 """
 define the api that we want to export in the DLL

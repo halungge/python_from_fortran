@@ -36,15 +36,34 @@ in Fortran, which we don't want to do I guess...
 
 ## ForPy example
 see `src/forpy_sample`
+
 ### compile and run
 the file `forpy_mod.F90` has been copied from `https://github.com/ylikx/forpy`
+
 ```bash
 gfortran -c forpy_mod.F90
 gfortran simple_forpy_example.f90 forpy_mod.o `python3-config --ldflags --embed`
 ```
 
-## call py fort example
-uses library from https://github.com/nbren12/call_py_fort
+## call_py_fort example
+uses library from https://github.com/nbren12/call_py_fort.
+
+The library uses cffi to publish a functions that allow you to register and read data from to a global 
+python dictionary called `STATE`.
+`set_state...(...)`, `get_state_...(...)` and call any python module that uses this data.
+So far so general...
+
+* (+) the interface is very general and let's you call any python function that is in loaded in you environemnt
+* (-) python functions are called by name by importing the module on the fly and looking up the function. This might
+introduce an extra overhead
+* (-) possibly, also registering of the data in the STATE dictionary and reading it from there introduces extra overhead
+compared to directly using the python buffer interface
+* (-) from the Fortran side you need to know many internals of the python environment that you are using: 
+  * you have to know the name and the module of the python function that you want to call
+  * **and** even the name of the parameters that this function uses, because on the python side you have to get the
+  right  data for your function so even if operating with **kwargs on the python side, you need to access the correct thing from within the 
+  `STATE` dict.
+### compile and run
 1. clone call_py_fort
 ```bash
 mkdir -p lib
@@ -52,7 +71,7 @@ cd lib
 git clone git@github.com:nbren12/call_py_fort.git
 ```
 2. build the library
-```commandline
+```bash
 cd call_py_fort
 mkdir build
 cmake ..
@@ -67,7 +86,7 @@ make
 printing from python input =  [[1. 1. 2. 3. 5. 8.]
  [1. 1. 2. 3. 5. 8.]
  [1. 1. 2. 3. 5. 8.]]
-.venv/src/gt4py-functional/src/functional/ffront/decorator.py:235: UserWarning: Field View Program 'multiply_fields': Using default (<function executor at 0x7f9e1ac8add0>) backend.
+py4f/.venv/src/gt4py-functional/src/functional/ffront/decorator.py:235: UserWarning: Field View Program 'multiply_fields': Using default (<function executor at 0x7f9e1ac8add0>) backend.
   warnings.warn(
 printing from python output =  [[ 1.  1.  4.  9. 25. 64.]
  [ 1.  1.  4.  9. 25. 64.]
@@ -76,34 +95,65 @@ printing from python output =  [[ 1.  1.  4.  9. 25. 64.]
 
 ```
 ## plain CFFI example
-see `src/ffi_sample`
+see `src/cffi_sample` or for an example using `gt4py` `src/cffi_field_sample`.
 
+The field-sample uses gt4py functions in python and passes fields from fortran to python via python buffers.
+
+Compared to the call_py_fort example, the initial effort is higher, you have to write the
+python wrapper to generate your c interface and header files and on top of it write corresponding Fortran
+interfaces for the c functions to be called.
+* (-) more involved 
+* (+) from the Fortran side a simple Fortran function/subroutine. It doesnt even know there is a python interpreter anywhere, even less 
+have any knowledge about its internals.
 
 #### compile and run
 
 1. compiling the ffi C bindings: 
 ```bash
 cd src/cffi_sample
+mkdir build
 python sample_cffi_wrapper.py 
 ```
 this generates a `.h` (because write it by hand in the code), `.c` (because `ffi_builder.emit_c_code()` is called) a `.o` and `lib*.so` file in the `$project/build` folder
 
 2. compile the fortran example
 ```
-cd src/cffi_sample
-gfortran -o ../../build/sample_f run_cffi_sample.f90 -L../../build -lsample_plugin
+export LIB=./build
+gfortran -o ./sample_f -I$LIB -Wl,-rpath=$LIB -L$LIB run_cffi_sample.f90 -lsample_plugin
 ```
 and run it
 ```
-> cd ../../build
-> export LD_LIBRARY_PATH=/home/magdalena/Projects/exclaim/fortran_stuff/py4f/build/:$LD_LIBRARY_PATH
-> ./hello_f
+> ./sample_f
 hello world!
+python-print: summing up to 5 = 15
+ fortran calling python, res=          15
+
 ```
 
 there is a corresponding C program `run_cffi_sample.c` which calls the same python functions 
 via the C wrapper from C.
 ```
 cd src/cffi_sample
-gcc -o ../../build/sample_c run_cffi_sample.c -L../../build -lsample_plugin
+gcc -o ./sample_c -I$LIB -Wl,-rpath=$LIB -L$LIB run_cffi_sample.c -lsample_plugin
+```
+
+The process works analogousely for the field example
+```bash
+> cd src/cffi_field_sample
+> mkdir build
+> python field_functions_wrapper.py
+> export LIB=./build
+> gfortran -I$LIB -Wl,-rpath=$LIB -L$LIB  run_field_sample.f90 -lfield_plugin
+./a.out
+fortran input: field =    1.0000000000000000        1.0000000000000000        2.0000000000000000        3.0000000000000000        5.0000000000000000        8.0000000000000000        1.0000000000000000        1.0000000000000000        2.0000000000000000        3.0000000000000000        5.0000000000000000        8.0000000000000000        1.0000000000000000        1.0000000000000000        2.0000000000000000        3.0000000000000000        5.0000000000000000        8.0000000000000000     
+[[1. 1. 2. 3. 5. 8.]
+ [1. 1. 2. 3. 5. 8.]
+ [1. 1. 2. 3. 5. 8.]]
+py4f/.venv/src/gt4py-functional/src/functional/ffront/decorator.py:235: UserWarning: Field View Program 'multiply_fields': Using default (<function executor at 0x7f85757fe830>) backend.
+  warnings.warn(
+[[ 1.  1.  4.  9. 25. 64.]
+ [ 1.  1.  4.  9. 25. 64.]
+ [ 1.  1.  4.  9. 25. 64.]]
+ fortran output: res =   1.0000000000000000        1.0000000000000000        4.0000000000000000        9.0000000000000000        25.000000000000000        64.000000000000000        1.0000000000000000        1.0000000000000000        4.0000000000000000        9.0000000000000000        25.000000000000000        64.000000000000000        1.0000000000000000        1.0000000000000000        4.0000000000000000        9.0000000000000000        25.000000000000000        64.000000000000000     
+
 ```
