@@ -1,16 +1,20 @@
-import sample_mod.field_functions
 import numpy as np
 from field_plugin import ffi
+
+import sample_mod.field_functions
+
 
 def unpack(ptr, size_x, size_y) -> np.ndarray:
     # for now only 2d, invert for row/column precedence...
     shape = (size_y, size_x)
     length = np.prod(shape)
     c_type = ffi.getctype(ffi.typeof(ptr).item)
-    ar = np.frombuffer(ffi.buffer(ptr, length * ffi.sizeof(c_type)),
-            dtype=np.dtype(c_type),
-            count=-1,
-            offset=0).reshape(shape)
+    ar = np.frombuffer(
+        ffi.buffer(ptr, length * ffi.sizeof(c_type)),
+        dtype=np.dtype(c_type),
+        count=-1,
+        offset=0,
+    ).reshape(shape)
     return ar
 
 

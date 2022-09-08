@@ -1,8 +1,6 @@
 import numpy as np
-
-
-from functional.ffront.fbuiltins import Dimension, Field, float64
 from functional.ffront.decorator import field_operator, program
+from functional.ffront.fbuiltins import Dimension, Field, float64
 from functional.iterator.embedded import np_as_located_field
 
 CellDim = Dimension("Cell")
