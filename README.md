@@ -1,4 +1,6 @@
 # Calling Python from Fortran
+Goal of this repo is to explore ways, how Python can be called from Fortran. That is *embedding* python into Fortran
+Some discussion can be found here:
 
 * [stackoverflow](https://stackoverflow.com/questions/17075418/embed-python-into-fortran-90)
 * [python embedding] (https://docs.python.org/2/extending/)
@@ -74,6 +76,7 @@ git clone git@github.com:nbren12/call_py_fort.git
 ```bash
 cd call_py_fort
 mkdir build
+cd build
 cmake ..
 make
 ```

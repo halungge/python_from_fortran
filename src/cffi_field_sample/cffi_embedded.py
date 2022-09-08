@@ -5,6 +5,8 @@ from field_plugin import ffi
 import sample_mod.field_functions
 
 
+# TODO [Magdalena]: generalize this and provide it as decorator to def_extern functions?
+# TODO [Magdalena]: generalize for arbitrary number of input fields
 def unpack(ptr, size_x, size_y) -> np.ndarray:
     """
     unpacks a 2d c/fortran field into a numpy array.
