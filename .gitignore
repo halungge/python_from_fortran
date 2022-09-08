@@ -1,6 +1,9 @@
 .venv
 .idea
 build/
+dist/
+lib/*
+!lib/.gitkeep
 *.egg*
 __pycache__/
 a.out
