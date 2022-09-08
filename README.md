@@ -146,7 +146,7 @@ The process works analogousely for the field example
 > mkdir build
 > python cffi_fieldplugin_builder.py
 > export LIB=./build
-> gfortran -I$LIB -Wl,-rpath=$LIB -L$LIB  run_field_sample.f90 -lfield_plugin
+> gfortran -I$LIB -Wl,-rpath=$LIB -L$LIB  field_functions_mod.f90 run_field_sample.f90 -lfield_plugin
 ./a.out
 fortran input: field =    1.0000000000000000        1.0000000000000000        2.0000000000000000        3.0000000000000000        5.0000000000000000        8.0000000000000000        1.0000000000000000        1.0000000000000000        2.0000000000000000        3.0000000000000000        5.0000000000000000        8.0000000000000000        1.0000000000000000        1.0000000000000000        2.0000000000000000        3.0000000000000000        5.0000000000000000        8.0000000000000000     
 [[1. 1. 2. 3. 5. 8.]
