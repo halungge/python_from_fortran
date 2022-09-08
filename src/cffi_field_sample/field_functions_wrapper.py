@@ -1,7 +1,8 @@
 import cffi
+
 builder = cffi.FFI()
 
-build_path = './build/'
+build_path = "./build/"
 
 header = """
 extern void square(double *, int, int, double *);
@@ -22,8 +23,10 @@ def unpack(ptr, size_x, size_y) -> np.ndarray:
     shape = (size_y, size_x)
     length = np.prod(shape)
     c_type = ffi.getctype(ffi.typeof(ptr).item)
-    ar = np.frombuffer(ffi.buffer(ptr, length * ffi.sizeof(c_type)), dtype=np.dtype(c_type), count=-1,
-                            offset=0).reshape(shape)
+    ar = np.frombuffer(ffi.buffer(ptr, length * ffi.sizeof(c_type)), 
+            dtype=np.dtype(c_type), 
+            count=-1,
+            offset=0).reshape(shape)
     return ar
 
 
@@ -44,5 +47,5 @@ def square(field, nx, ny, result):
 """
 
 builder.embedding_init_code(module)
-builder.emit_c_code(build_path + 'field_plugin.c')
+builder.emit_c_code(build_path + "field_plugin.c")
 builder.compile(tmpdir=build_path, target="libfield_plugin.*", verbose=True)

@@ -3,6 +3,7 @@ defines a plugin called hello_plugin
 """
 
 import cffi
+
 ffi_builder = cffi.FFI()
 
 build_path = "./build/"
@@ -30,9 +31,12 @@ define the modules name from the Python point of view:
     makes this module available under module name to the python code (see below in 'module'),
     add additional C code, possibly constants, other includes...
 """
-ffi_builder.set_source("sample_plugin", r'''
+ffi_builder.set_source(
+    "sample_plugin",
+    r"""
     #include "sample_plugin.h"
-''')
+""",
+)
 
 module = """
 from sample_plugin import ffi

@@ -23,4 +23,5 @@ program call_python
     call square(a, cdim, kdim, res)
     print *, "fortran output: res =", res
 
+
     end program call_python
