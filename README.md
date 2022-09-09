@@ -65,6 +65,8 @@ compared to directly using the python buffer interface
   * **and** even the name of the parameters that this function uses, because on the python side you have to get the
   right  data for your function so even if operating with **kwargs on the python side, you need to access the correct thing from within the 
   `STATE` dict.
+* (+) (*development mode only*) due to the fact that the python function is dynamically looked up, changes in the function are automatically
+picked up by the fortran code. (This is only useful advantage during development when installing with pip -e ) 
 ### compile and run
 1. clone call_py_fort
 ```bash
@@ -108,6 +110,8 @@ interfaces for the c functions to be called.
 * (-) more involved 
 * (+) from the Fortran side a simple Fortran function/subroutine. It doesnt even know there is a python interpreter anywhere, even less 
 have any knowledge about its internals.
+* (-) (*development mode only*) changes in the python code decorated with the @ffi.def_extern have to be run through the cffi 
+generator `python xxx.py` before the get picked up 
 
 #### compile and run
 

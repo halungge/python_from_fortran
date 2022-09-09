@@ -7,6 +7,7 @@ build_path = "./build/"
 
 header = """
 extern void square(double *, int, int, double *);
+extern void square1(double *, int, int, double *);
 """
 
 with open(build_path + "field_plugin.h", "w") as f:
