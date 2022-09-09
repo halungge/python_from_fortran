@@ -5,7 +5,7 @@ import numpy as np
 
 
 matplotlib.use("Qt5Agg")
-data = np.genfromtxt("cff1_timings.csv", delimiter=",")
+data = np.genfromtxt("cffi_timings.csv", delimiter=",")
 fig, axs = plt.subplots(3, 1, sharex=False)
 axs[0].plot(data[:, 0], data[:, 1], label="plain cffi")
 axs[0].plot(data[:, 0], data[:, 2], label="call_fort_py wrapper")
