@@ -1,0 +1,3 @@
+[submodule "src/call_py_fort_sample/lib/call_py_fort"]
+	path = src/call_py_fort_sample/lib/call_py_fort
+	url = git@github.com:halungge/call_py_fort.git

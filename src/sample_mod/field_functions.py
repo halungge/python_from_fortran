@@ -25,21 +25,30 @@ def multiply_fields(
     _multiply_fields(a, b, out=result)
 
 
-def square_ar(a: np.ndarray) -> np.array:
-    a_field = np_as_located_field(CellDim, KDim)(a)
-    result = np_as_located_field(CellDim, KDim)(np.zeros(a.shape, dtype=float64))
+def square_return(input_ar: np.ndarray) -> np.array:
+    a_field = np_as_located_field(CellDim, KDim)(input_ar)
+    result = np_as_located_field(CellDim, KDim)(np.zeros(input_ar.shape, dtype=float64))
     multiply_fields(a_field, a_field, result, offset_provider={})
     return np.asarray(result)
 
 
+def square_output_param(input_ar: np.ndarray, output_ar: np.ndarray):
+    input_field = np_as_located_field(CellDim, KDim)(input_ar)
+    output_field = np_as_located_field(CellDim, KDim)(output_ar)
+    multiply_fields(input_field, input_field, output_field, offset_provider={})
+
+
 def square(state):
-    """pass the result array inside **state"""
+    """pass input and output arrays inside **state"""
     a = state["input"]
     res = state["output"]
     assert res.shape == a.shape
-    print("printing from python input = ", a[:])
-    a_field = np_as_located_field(CellDim, KDim)(a)
-    result = np_as_located_field(CellDim, KDim)(res)
-    multiply_fields(a_field, a_field, result, offset_provider={})
-    res = np.asarray(result)
-    print("printing from python output = ", res[:])
+    # print("printing from python input = ", a[:])
+    square_output_param(a, res)
+    # print("printing from python output = ", res[:])
+
+
+def square1(state):
+    a = state["input"]
+    res = square_return(a)
+    state["output"] = res

@@ -1,4 +1,6 @@
 # Calling Python from Fortran
+Goal of this repo is to explore ways, how Python can be called from Fortran. That is *embedding* python into Fortran
+Some discussion can be found here:
 
 * [stackoverflow](https://stackoverflow.com/questions/17075418/embed-python-into-fortran-90)
 * [python embedding] (https://docs.python.org/2/extending/)
@@ -63,6 +65,8 @@ compared to directly using the python buffer interface
   * **and** even the name of the parameters that this function uses, because on the python side you have to get the
   right  data for your function so even if operating with **kwargs on the python side, you need to access the correct thing from within the 
   `STATE` dict.
+* (+) (*development mode only*) due to the fact that the python function is dynamically looked up, changes in the function are automatically
+picked up by the fortran code. (This is only useful advantage during development when installing with pip -e ) 
 ### compile and run
 1. clone call_py_fort
 ```bash
@@ -74,6 +78,7 @@ git clone git@github.com:nbren12/call_py_fort.git
 ```bash
 cd call_py_fort
 mkdir build
+cd build
 cmake ..
 make
 ```
@@ -105,6 +110,8 @@ interfaces for the c functions to be called.
 * (-) more involved 
 * (+) from the Fortran side a simple Fortran function/subroutine. It doesnt even know there is a python interpreter anywhere, even less 
 have any knowledge about its internals.
+* (-) (*development mode only*) changes in the python code decorated with the @ffi.def_extern have to be run through the cffi 
+generator `python xxx.py` before the get picked up 
 
 #### compile and run
 
@@ -143,7 +150,7 @@ The process works analogousely for the field example
 > mkdir build
 > python cffi_fieldplugin_builder.py
 > export LIB=./build
-> gfortran -I$LIB -Wl,-rpath=$LIB -L$LIB  run_field_sample.f90 -lfield_plugin
+> gfortran -I$LIB -Wl,-rpath=$LIB -L$LIB  field_functions_mod.f90 run_field_sample.f90 -lfield_plugin
 ./a.out
 fortran input: field =    1.0000000000000000        1.0000000000000000        2.0000000000000000        3.0000000000000000        5.0000000000000000        8.0000000000000000        1.0000000000000000        1.0000000000000000        2.0000000000000000        3.0000000000000000        5.0000000000000000        8.0000000000000000        1.0000000000000000        1.0000000000000000        2.0000000000000000        3.0000000000000000        5.0000000000000000        8.0000000000000000     
 [[1. 1. 2. 3. 5. 8.]
