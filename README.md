@@ -33,8 +33,9 @@ In order to use we would have to further encapsulate the library and do the data
 in Fortran, which we don't want to do I guess...
 
 ### Others:
-* [f2py](https://numpy.org/doc/stable/f2py/) that does it the other way round. But according to stackoverflow discussion above can also  be used
+* [f2py](https://numpy.org/doc/stable/f2py/) that does it the other way round. But according to stackoverflow discussion above can also  be used, you can call python from fortran via callbacks [TODO]
 * ~~[forcallpy](https://forcallpy.readthedocs.io/en/latest/)~~ repo does not exist anymore
+* [pyFort](http://pyfortran.sourceforge.net/pyfort/pyfort_reference.htm): also used for extending Python, that is calling Fortran from Python
 
 ## ForPy example
 see `src/forpy_sample`
