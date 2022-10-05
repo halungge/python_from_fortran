@@ -43,3 +43,23 @@ for each vertex there are 3 edges. With the available shiftings the mesh can be 
 Hence here aswell we need `2 * 8` halo edges.
 
 (-> include pic)
+
+
+## building with f2py
+
+```commandline
+> python -m numpy.f2py communicator.f90 -m fortran_communicator -h communicator.pyf --overwrite-signature
+> python -m numpy.f2py --f90exec=mpif90 --f77exec=mpif77 -c communicator.pyf communicator.f90 
+```
+
+then im python
+
+```python
+>>> from fortran_communicator import communicator
+>>> communicator.setup_comm()
+
+```
+
+### TODO
+- check data layour
+- check args (intent(in), intent(out)) from the [`f2py` documentation](https://numpy.org/doc/stable/f2py/f2py.getting-started.html)

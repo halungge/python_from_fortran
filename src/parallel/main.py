@@ -35,7 +35,7 @@ def main():
 
     mesh = LocalMesh(GLOBAL_V_NUM/comm.get_size())
 
-    input =(3 + comm.get_rank()) * np.ones(int(mesh.get_local_size()))
+    input = (3 + comm.get_rank()) * np.ones(int(mesh.get_local_size()))
 
     send_buf = np.zeros(input.shape)
     recv_buf = np.zeros(input.shape)
