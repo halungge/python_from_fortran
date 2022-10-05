@@ -4,11 +4,14 @@ program run_parallel
     use MPI
     implicit none
 
-    integer ierr, tag, status
+    integer ierr, tag, status(MPI_STATUS_SIZE)
     integer my_rank, left_neighbor, right_neighbor
     integer comm_world, group_world, comm_workers, group_workers, num_procs
     integer(c_int) vdim, GLOBAL_V_NUM, GLOBAL_VX_SIZE, data_size
-    real(16), DIMENSION(24) :: data, res
+    real :: outgoing(24), incoming(24)
+    !integer outgoing, incoming
+
+    data_size = 24
     tag = 13
     GLOBAL_V_NUM = 96
 
@@ -21,7 +24,6 @@ program run_parallel
     call MPI_Comm_group(comm_world, group_workers, ierr)
     call MPI_Comm_create(comm_world, group_workers, comm_workers, ierr)
     call MPI_Comm_size(comm_workers, num_procs, ierr)
-
     call mpi_comm_rank(comm_workers, my_rank, ierr)
     !print *, my_rank, "out of ", num_procs, ": hello_world"
 
@@ -31,13 +33,18 @@ program run_parallel
         print *, "communication pattern:"
     end if
     call mpi_barrier(MPI_COMM_WORLD, ierr)
-    print * , "me ", my_rank, "left ", left_neighbor, " right ", right_neighbor
+    print * , "me ", my_rank, ": left ", left_neighbor, ", right ", right_neighbor
     call mpi_barrier(MPI_COMM_WORLD, ierr)
 
-    data = real(my_rank)
-    call mpi_send(data, data_size, MPI_FLOAT, left_neighbor, tag, comm_workers,  ierr )
-    call mpi_recv(res, data_size, MPI_FLOAT, right_neighbor, tag, comm_workers, MPI_STATUS_IGNORE, ierr)
+    call random_number(outgoing)
+    incoming = 0
 
-    !print *, my_rank, " got data ", res
+    call mpi_send(outgoing, data_size, MPI_REAL, left_neighbor, tag, comm_workers,  ierr )
+    call mpi_recv(incoming, data_size, MPI_REAL, right_neighbor, tag, comm_workers, status, ierr)
+
+    if (ierr .ne. 0) then
+        print *, "me=", my_rank, " error receiving data from ", right_neighbor
+    end if
+    print *, my_rank, " got data ", incoming
     call mpi_finalize(ierr)
 end program run_parallel
