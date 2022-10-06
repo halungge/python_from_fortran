@@ -3,7 +3,6 @@ import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 
-
 matplotlib.use("Qt5Agg")
 data = np.genfromtxt("cffi_timings.csv", delimiter=",")
 fig, axs = plt.subplots(3, 1, sharex=False)
