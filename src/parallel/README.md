@@ -51,14 +51,37 @@ Hence here aswell we need `2 * 8` halo edges.
 > python -m numpy.f2py communicator.f90 -m fortran_communicator -h communicator.pyf --overwrite-signature
 > python -m numpy.f2py --f90exec=mpif90 --f77exec=mpif77 -c communicator.pyf communicator.f90 
 ```
+The first line generates a `communicator.pyf` 
+wrapper that can be further manipulated by hand.
 
 then im python
 
 ```python
 >>> from fortran_communicator import communicator
 >>> communicator.setup_comm()
-
+>>> error = communicator.exchangeleft(a,b)
 ```
+
+### py2f and fortran args: intent(...)
+`numpy` arrays that are fortran contiguous and has a `dtype` maching the fortran type
+
+TODO: type list
+the input array is directly passed. If this i not the case a Fortran contiguous copy is made and
+passed to the Fortran routine. *The original array is not manipulated and stays the same.!*
+If you want the manipulation to be reflected in the input array 
+(Fortran `intent(inout)`) either use a Fortran contiguous array or use the (py2f specific)
+`intent(inplace)` in the .py2f
+
+#### intent(in)
+creates an python input parameter in the python function
+#### intent(out)
+creates a return value, no corresponding input argument is taken. 
+#### intent(inout)
+creates an input parameter
+#### input(inplace)
+`py2f` addition (see above) use for inplace manipulation of non fortran contiguous arrays.
+
+see [py2f doc](https://numpy.org/doc/stable/f2py/f2py.getting-started.html)
 
 ### TODO
 - check data layour

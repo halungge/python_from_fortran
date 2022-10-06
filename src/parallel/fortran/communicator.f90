@@ -33,15 +33,22 @@ contains
 
     subroutine exchangeLeft(sendb, recvb, err)
         implicit none
-        real, intent(in) :: sendb(:)
-        real, intent(out) :: recvb(:)
+        real*8, intent(in) :: sendb(:)
+        real*8, intent(inout) :: recvb(:)
         integer, intent(out) :: err
-        integer data_size
+        integer data_size, data_size_out
 
         data_size = size(sendb)
+        data_size_out = size(recvb)
+        if (data_size_out < data_size) then
+            write(*,*) "receive buffer recvb to small"
+            err = 1
+            return
+        end if
+
 
         call mpi_send(sendb, data_size, MPI_REAL, left_neighbor, tag, comm_workers, err)
-        call mpi_recv(recvb, data_size, MPI_REAL, right_neighbor, tag, comm_workers, status, err)
+        call mpi_recv(recvb, data_size_out, MPI_REAL, right_neighbor, tag, comm_workers, status, err)
         if (err .ne. 0) then
             print *, "me=", my_rank, " error receiving data from ", right_neighbor
         else
