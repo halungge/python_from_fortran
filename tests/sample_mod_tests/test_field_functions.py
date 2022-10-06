@@ -1,11 +1,10 @@
 # noqa: D100
 import numpy as np
-from functional.ffront.fbuiltins import float64, Dimension
+from functional.ffront.fbuiltins import Dimension, float64
 from functional.iterator.embedded import np_as_located_field
-from  sample_mod.field_functions import CellDim, KDim
-
 
 import sample_mod.field_functions
+from sample_mod.field_functions import CellDim, KDim
 
 
 def test_square():
@@ -23,12 +22,10 @@ def test_square():
     assert np.allclose(res[:, 2], expected_result_layer)
 
 
-
 def test_square_fields():
     input_array = np.asarray([[1.0, 1.0, 2.0, 3.0, 5.0, 8.0], [4.0, 3.4, 9.9, 4.0, 1.5, 1.2]])
     input_field = np_as_located_field(CellDim, KDim)(input_array)
-    expected = np_as_located_field(CellDim, KDim)(input_array ** 2)
+    expected = np_as_located_field(CellDim, KDim)(input_array**2)
     output = np_as_located_field(CellDim, KDim)(np.zeros(input_array.shape, float64))
-    sample_mod.field_functions.square_fields(input_field, output, offset_provider = {})
+    sample_mod.field_functions.square_fields(input_field, output, offset_provider={})
     assert np.allclose(expected, output)
-

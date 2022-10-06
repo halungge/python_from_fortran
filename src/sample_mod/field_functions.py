@@ -1,15 +1,16 @@
 # flake8: noqa D100, D103
 
 import numpy as np
+from functional.fencil_processors.runners import gtfn_cpu, roundtrip
 from functional.ffront.decorator import field_operator, program
 from functional.ffront.fbuiltins import Dimension, Field, float64
 from functional.iterator.embedded import np_as_located_field
-from functional.fencil_processors.runners import gtfn_cpu, roundtrip
 
 CellDim = Dimension("Cell")
 KDim = Dimension("K")
 VDim = Dimension("Vertex")
 EDim = Dimension("Edge")
+
 
 @field_operator
 def _multiply_fields(
@@ -28,8 +29,9 @@ def multiply_fields(
 
 
 @program(backend=gtfn_cpu.run_gtfn)
-def square_fields(a: Field[[CellDim, KDim], float64], result:Field[[CellDim, KDim], float64]):
+def square_fields(a: Field[[CellDim, KDim], float64], result: Field[[CellDim, KDim], float64]):
     _multiply_fields(a, a, out=result)
+
 
 def square_return(input_ar: np.ndarray) -> np.array:
     a_field = np_as_located_field(CellDim, KDim)(input_ar)
