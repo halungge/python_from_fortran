@@ -10,8 +10,19 @@ module communicator
 
 
 contains
+
+    subroutine init(ierr)
+        logical initialized
+        integer, intent(out):: ierr
+        call MPI_Initialized(initialized, ierr)
+        if (.not. initialized) then
+            print *, "communicator.f90: initalizing mpi first"
+            call mpi_init(ierr)
+        end if
+    end subroutine init
+
     subroutine setup_comm
-        call mpi_init(ierr)
+        call init(ierr)
         ! set up communicator
         comm_world = MPI_COMM_WORLD
         call MPI_Comm_group(comm_world, group_world, ierr)
@@ -19,7 +30,7 @@ contains
         call MPI_Comm_group(comm_world, group_workers, ierr)
         call MPI_Comm_create(comm_world, group_workers, comm_workers, ierr)
         call MPI_Comm_size(comm_workers, num_procs, ierr)
-        call mpi_comm_rank(comm_workers, my_rank, ierr)
+        call MPI_comm_rank(comm_workers, my_rank, ierr)
         left_neighbor = mod((my_rank - 1 + num_procs), num_procs)
         right_neighbor = mod((my_rank + 1), num_procs)
         if (my_rank == 0) then
@@ -51,8 +62,6 @@ contains
         call mpi_recv(recvb, data_size_out, MPI_REAL, right_neighbor, tag, comm_workers, status, err)
         if (err /=  0) then
             print *, "me=", my_rank, " error receiving data from ", right_neighbor
-        else
-            print *, my_rank, " got data ", recvb, "from ", right_neighbor
         end if
 
     end subroutine exchangeLeft
@@ -66,6 +75,10 @@ contains
 
 
     subroutine cleanup
-        call mpi_finalize(ierr)
+        logical finalized
+        call mpi_finalized(finalized, ierr)
+        if (.not. finalized) then
+            call mpi_finalize(ierr)
+        end if
     end subroutine cleanup
 end module communicator

@@ -1,4 +1,5 @@
 import numpy as np
+from mpi4py import MPI
 from fortran.fortran_communicator import communicator
 
 
@@ -19,8 +20,7 @@ def main():
     communicator.exchangeleft(send_buf, recv_buf)
     my_rank = communicator.get_my_rank()
     print(f"me {my_rank} recevied {recv_buf}")
-    communicator.cleanup()
-
+    MPI.Finalize()
 
 
 
