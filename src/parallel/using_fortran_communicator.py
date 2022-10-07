@@ -16,10 +16,12 @@ def main():
     """
     communicator.setup_comm()
     send_buf = np.random.rand(96)
-    recv_buf = np.zeros(send_buf.shape)
-    communicator.exchangeleft(send_buf, recv_buf)
+    recv_buf_r = np.zeros(send_buf.shape)
+    recv_buf_l = np.zeros(send_buf.shape)
+    communicator.exchangeleft(send_buf, recv_buf_l)
+    communicator.exchangeright(send_buf, recv_buf_r)
     my_rank = communicator.get_my_rank()
-    print(f"me {my_rank} recevied {recv_buf}")
+    print(f"me {my_rank} recevied {recv_buf_l}")
     MPI.Finalize()
 
 

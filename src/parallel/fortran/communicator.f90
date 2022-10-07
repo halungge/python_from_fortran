@@ -1,11 +1,10 @@
 module communicator
-    use, intrinsic :: iso_c_binding
     use MPI
     implicit none
     integer ierr, tag, status(MPI_STATUS_SIZE)
     integer my_rank, left_neighbor, right_neighbor
     integer comm_world, group_world, comm_workers, group_workers, num_procs
-
+    ! reconsider
     private :: ierr, tag, status
 
 
@@ -42,11 +41,13 @@ contains
         call mpi_barrier(MPI_COMM_WORLD, ierr)
     end subroutine setup_comm
 
-    subroutine exchangeLeft(sendb, recvb, err)
+
+    subroutine exchange(to,from, sendb, recvb,  err)
         implicit none
         real(8), intent(in) :: sendb(:)
         real(8), intent(inout) :: recvb(:)
         integer, intent(out) :: err
+        integer, intent(in):: to, from
         integer data_size, data_size_out
 
         data_size = size(sendb)
@@ -57,20 +58,33 @@ contains
             return
         end if
 
-
-        call mpi_send(sendb, data_size, MPI_REAL, left_neighbor, tag, comm_workers, err)
-        call mpi_recv(recvb, data_size_out, MPI_REAL, right_neighbor, tag, comm_workers, status, err)
+        call mpi_send(sendb, data_size, MPI_DOUBLE, to, tag, comm_workers, err)
+        call mpi_recv(recvb, data_size_out, MPI_DOUBLE, from, tag, comm_workers, status, err)
         if (err /=  0) then
-            print *, "me=", my_rank, " error receiving data from ", right_neighbor
+            print *, "me=", my_rank, " error receiving data from ", from
         end if
+    end subroutine exchange
 
+    subroutine exchangeLeft(sendb, recvb, err)
+        implicit none
+        real(8), intent(in) :: sendb(:)
+        real(8), intent(inout) :: recvb(:)
+        integer, intent(out) :: err
+        call exchange(left_neighbor, right_neighbor, sendb, recvb, err)
     end subroutine exchangeLeft
 
+    subroutine exchangeRight(sendb, recvb, err)
+        implicit none
+        real(8), intent(in) :: sendb(:)
+        real(8), intent(inout) :: recvb(:)
+        integer, intent(out) :: err
+        call exchange(right_neighbor, left_neighbor, sendb, recvb, err)
+    end subroutine exchangeRight
+
     subroutine get_my_rank(y)
-        integer(c_int), intent(out):: y
+        integer, intent(out):: y
         y = my_rank
     end subroutine get_my_rank
-
 
 
 
@@ -81,4 +95,5 @@ contains
             call mpi_finalize(ierr)
         end if
     end subroutine cleanup
+
 end module communicator
