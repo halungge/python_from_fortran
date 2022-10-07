@@ -7,12 +7,11 @@ program run_parallel
     integer ierr
     integer(c_int) vdim, GLOBAL_V_NUM, GLOBAL_VX_SIZE, data_size
     real :: outgoing(24), incoming(24)
-    !integer outgoing, incoming
 
+    incoming = 0
     data_size = 24
     GLOBAL_V_NUM = 96
     call random_number(outgoing)
-    incoming = 0
 
 
     call setup_comm()

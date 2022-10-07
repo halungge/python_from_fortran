@@ -48,6 +48,7 @@ Hence here aswell we need `2 * 8` halo edges.
 ## building with f2py
 
 ```commandline
+> cd fortran
 > python -m numpy.f2py communicator.f90 -m fortran_communicator -h communicator.pyf --overwrite-signature
 > python -m numpy.f2py --f90exec=mpif90 --f77exec=mpif77 -c communicator.pyf communicator.f90 
 ```
@@ -60,6 +61,7 @@ then im python
 >>> from fortran_communicator import communicator
 >>> communicator.setup_comm()
 >>> error = communicator.exchangeleft(a,b)
+>>> communicator.cleanup()
 ```
 
 ### py2f and fortran args: intent(...)

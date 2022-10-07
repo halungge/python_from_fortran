@@ -33,8 +33,8 @@ contains
 
     subroutine exchangeLeft(sendb, recvb, err)
         implicit none
-        real*8, intent(in) :: sendb(:)
-        real*8, intent(inout) :: recvb(:)
+        real(8), intent(in) :: sendb(:)
+        real(8), intent(inout) :: recvb(:)
         integer, intent(out) :: err
         integer data_size, data_size_out
 
@@ -49,10 +49,10 @@ contains
 
         call mpi_send(sendb, data_size, MPI_REAL, left_neighbor, tag, comm_workers, err)
         call mpi_recv(recvb, data_size_out, MPI_REAL, right_neighbor, tag, comm_workers, status, err)
-        if (err .ne. 0) then
+        if (err /=  0) then
             print *, "me=", my_rank, " error receiving data from ", right_neighbor
         else
-            print *, my_rank, " got data ", recvb
+            print *, my_rank, " got data ", recvb, "from ", right_neighbor
         end if
 
     end subroutine exchangeLeft
