@@ -17,8 +17,8 @@ def main():
     send_buf = np.random.rand(96)
     recv_buf = np.zeros(send_buf.shape)
     communicator.exchangeleft(send_buf, recv_buf)
-
-    print(recv_buf)
+    my_rank = communicator.get_my_rank()
+    print(f"me {my_rank} recevied {recv_buf}")
     communicator.cleanup()
 
 

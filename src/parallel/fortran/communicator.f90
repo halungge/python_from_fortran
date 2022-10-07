@@ -57,6 +57,14 @@ contains
 
     end subroutine exchangeLeft
 
+    subroutine get_my_rank(y)
+        integer(c_int), intent(out):: y
+        y = my_rank
+    end subroutine get_my_rank
+
+
+
+
     subroutine cleanup
         call mpi_finalize(ierr)
     end subroutine cleanup
