@@ -5,8 +5,8 @@ cffi_functions_file = "driver.py"
 build_path="."
 plugin_name="driver_plugin"
 c_header = """
-extern void run_step(double* input, double* output, int xLength, int localSize);
-extern void run_cart_step(double* input, double* output, int xLength, int localSize);
+extern void run_step(double* input, double* output, int xLength, int yLength);
+extern void run_cart_step(double* input, double* output, int xLength, int yLength);
 """
 
 

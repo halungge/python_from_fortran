@@ -9,7 +9,6 @@ module communicator
 
 
 contains
-
     subroutine init(ierr)
         logical initialized
         integer, intent(out):: ierr

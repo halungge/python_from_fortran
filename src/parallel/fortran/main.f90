@@ -4,19 +4,31 @@ program run_parallel
     use driver
     implicit none
 
-    integer nSteps, t
+    integer nSteps, t, i, me, ierr
     integer(c_int) idim, jdim
-    real(8), allocatable :: field(:,:)
-    real(8), allocatable:: result_field(:,:)
+    real(c_double), allocatable :: field(:,:)
+    real(c_double), allocatable:: result_field(:,:)
+    call setup_comm()
 
-    idim = 96
-    jdim = 96
+
+
+    idim = 4
+    jdim = 8
     allocate(field(idim, jdim), result_field(idim, jdim))
 
-    call random_number(field)
-    result_field = 0
 
-    call setup_comm()
+    !call random_number(field)
+    call get_my_rank(me)
+    field = reshape((/(i, i=me, me + idim * jdim)/), (/idim, jdim/))
+    call exchangeleft(field(1:idim, 2), field(1:idim, 1), ierr)
+    print *, "rank ", me, "left send buffer", field(1:idim, 2)
+    print *, "rank ", me, "left recv buffer", field(1:idim, 1)
+    call exchangeright(field(1:idim, jdim-1), field(1:idim, jdim), ierr)
+    print *, "rank ", me, "right send buffer", field(1:idim, jdim-1)
+    print *, "rank ", me, "right recv buffer", field(1:idim, jdim)
+    print *
+    print *
+
 
     call run_cart_step(field, result_field, idim, jdim)
 

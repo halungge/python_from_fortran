@@ -14,8 +14,8 @@ module driver
         subroutine run_cart_step(input, output, ni, nj) bind(c, name='run_cart_step')
             use iso_c_binding
             integer(c_int), value, intent(in)::ni, nj
-            real(c_double), intent(in):: input(:,:)
-            real(c_double), intent(out) :: output(:,:)
+            real(c_double), intent(in):: input(ni,nj)
+            real(c_double), intent(out) :: output(ni,nj)
         end subroutine run_cart_step
     end interface
 

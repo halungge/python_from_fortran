@@ -2,7 +2,6 @@
 import sys;
 sys.path.insert(0, "/home/magdalena/Projects/exclaim/fortran_stuff/py4f/src/parallel")
 import numpy as np
-import logging
 from functional.iterator.embedded import np_as_located_field
 
 from parallel.dimensions import VDim, IDim, JDim
@@ -29,25 +28,37 @@ def run_step(input:np.ndarray, output: np.ndarray, x_length:int, local_size:int)
     #laplace(input, output, offset_provider={"V2E2V", mesh.get_v2e2v_offset()})
 
 
+def handle_error(exception, exc_value, traceback):
+    print(f"exception {exception} value {exc_value}")
+    if traceback is not None:
+        print("original arguments were:")
+        inptr = traceback.tb_frame.f_locals['input_ptr']
+        print(f"input_ptr: type = {type(inptr)}  ")
+        inptr = traceback.tb_frame.f_locals['output_ptr']
+        print(f"output_ptr: type = {type(inptr)}  ")
+        xl = traceback.tb_frame.f_locals['x_length']
+        yl = traceback.tb_frame.f_locals['y_length']
+        print(f"sizes {xl} x {yl}")
 
-@ffi.def_extern()
+@ffi.def_extern(onerror=handle_error)
 def run_cart_step(input_ptr:np.ndarray, output_ptr: np.ndarray, x_length:int, y_length:int):
-    input = unpack(input_ptr, x_length, y_length)
-    output = unpack(output_ptr, x_length, y_length)
-    print(f"run_cart_step: params input={input}, xlength={x_length}, ylength={y_length}")
-    communicator.exchangeleft(input[0:x_length, 1], input[0:x_length, 0])
-    communicator.exchangeright(input[0:x_length, y_length-2], input[0:x_length, y_length-1])
-    input_field = np_as_located_field(IDim, JDim)(input)
-    output_field = np_as_located_field(IDim, JDim)(output)
-    cart_laplace(input_field, output_field, offset_provider={"Ioff": IDim, "JDim":JDim})
+    in_unpack = unpack(input_ptr, x_length, y_length)
+    out_unpack = unpack(output_ptr, x_length, y_length)
+    communicator.exchangeleft(in_unpack[1, 0:x_length], out_unpack[0, 0:x_length])
+    communicator.exchangeright(in_unpack[y_length - 2, 0:x_length], out_unpack[y_length - 1, 0:x_length])
+    print(f"run_cart_step: params input={in_unpack}, xlength={x_length}, ylength={y_length}")
+
+    input_field = np_as_located_field(IDim, JDim)(in_unpack)
+    output_field = np_as_located_field(IDim, JDim)(out_unpack)
+    cart_laplace(input_field, output_field, offset_provider={"Ioff": IDim, "Joff":JDim})
 
 def unpack(ptr, size_x, size_y) -> np.ndarray:
     """
     unpacks a 2d c/fortran field into a numpy array.
 
     :param ptr: c_pointer to the field
-    :param size_x: col size (since its called from fortran)
-    :param size_y: row size
+    :param size_x: num of rows (i.e. left most index, continuous in fortran)
+    :param size_y: num of cols (i.e. right index, with stride size_x
     :return: a numpy array with shape=(size_y, size_x)
     and dtype = ctype of the pointer
     """

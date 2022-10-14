@@ -50,7 +50,8 @@ Hence here aswell we need `2 * 8` halo edges.
 ```commandline
 > cd fortran
 > python -m numpy.f2py communicator.f90 -m fortran_communicator -h communicator.pyf --overwrite-signature
-> 
+> python -m numpy.f2py --f90exec=mpif90 --f77exec=mpif77 -c communicator.pyf communicator.f90
+
  
 ```
 The first line generates a `communicator.pyf` 
