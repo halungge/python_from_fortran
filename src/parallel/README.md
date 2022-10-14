@@ -87,5 +87,22 @@ creates an input parameter
 see [py2f doc](https://numpy.org/doc/stable/f2py/f2py.getting-started.html)
 
 ### TODO
-- check data layour
+- check data layout
 - check args (intent(in), intent(out)) from the [`f2py` documentation](https://numpy.org/doc/stable/f2py/f2py.getting-started.html)
+
+
+## main expertiment
+- [ ] Fortran: program: initialize communicator
+- [ ] Fortran: initialize local fields
+- [x] python: gt4py program
+- [x] python: driver: exchange + program call
+- [x] python: cffi wrapper
+- [x] Fortran: interface for driver call
+- [ ] Fortran: call driver
+- [ ] exercise: switch to unstructured grid!
+
+## potential problems:
+ - [ ] py2f: iso_c_binding??
+ - [ ] how does py2f handle fortran arrays, layouting, what are the requirements there
+ - [ ] cffi builder generalize
+

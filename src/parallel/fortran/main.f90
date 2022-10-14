@@ -1,23 +1,26 @@
-! run_field_sample.f90
 program run_parallel
     use, intrinsic :: iso_c_binding
     use communicator
+    use driver
     implicit none
 
-    integer ierr
-    integer(c_int) vdim, GLOBAL_V_NUM, GLOBAL_VX_SIZE, data_size
-    real :: outgoing(24), incoming(24)
+    integer nSteps, t
+    integer(c_int) idim, jdim
+    real(8), allocatable :: field(:,:)
+    real(8), allocatable:: result_field(:,:)
 
-    incoming = 0
-    data_size = 24
-    GLOBAL_V_NUM = 96
-    call random_number(outgoing)
+    idim = 96
+    jdim = 96
+    allocate(field(idim, jdim), result_field(idim, jdim))
 
+    call random_number(field)
+    result_field = 0
 
     call setup_comm()
 
-    call exchangeLeft(outgoing, incoming, ierr)
+    call run_cart_step(field, result_field, idim, jdim)
 
+    print *,"DONE"
     call cleanup()
 
 end program run_parallel

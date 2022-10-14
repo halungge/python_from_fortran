@@ -1,10 +1,8 @@
 
-import numpy as np
 from functional.ffront.decorator import field_operator, program
-from functional.ffront.fbuiltins import Dimension, Field, FieldOffset, DimensionKind, neighbor_sum
-from functional.iterator.embedded import np_as_located_field
+from functional.ffront.fbuiltins import Field
 
-from parallel.dimensions import VDim, V2E2VDim, EDim, V2E2V
+from parallel.dimensions import VDim, IDim, JDim, Ioff, Joff
 
 
 # @field_operator
@@ -31,3 +29,22 @@ def _local_invert(v:Field[[VDim], float])->Field[[VDim], float]:
 @program
 def local_invert(v:Field[[VDim], float], res:Field[[VDim], float]):
     _local_invert(v, out=res)
+
+
+@field_operator
+def _cart_laplace(v:Field[[IDim, JDim], float]) ->Field[[IDim, JDim], float]:
+    return v(Ioff[+1])+ v(Ioff[-1]) + v(Joff[+1]) + v(Joff[-1]) - 4.0 * v
+
+@program
+def cart_laplace(v:Field[[IDim, JDim], float], res:Field[[IDim, JDim], float]):
+    #do not use halo...
+    _cart_laplace(v, out=res[1:-1, 1:-1])
+
+# @field_operator
+# def _laplace(v:Field[[VDim], float], num_neighbor:int)->Field[[VDim], float]:
+#     return neighbor_sum(v, axis=V2E2VDim) - num_neighbor*v
+#
+# @program
+# def laplace(v:Field[[VDim], float], num, outfield:Field[[VDim], float], lower:int, upper:int):
+#     _laplace(v, num, out=outfield[lower:upper])
+#

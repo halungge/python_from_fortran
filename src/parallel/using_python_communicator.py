@@ -2,7 +2,7 @@ from mpi4py import MPI  # implicitly calls MPI.Init
 import numpy as np
 
 from parallel.communicator import RingComm
-from parallel.driver import run_step
+from parallel.driver import run_step_invert
 from parallel.mesh import LocalMesh
 
 
@@ -40,7 +40,7 @@ def main():
     send_buf = np.zeros(input.shape)
     recv_buf = np.zeros(input.shape)
 
-    run_step(comm, input, recv_buf, send_buf)
+    run_step_invert(comm, input, recv_buf, send_buf)
 
     print(f" me= {comm.get_rank()}: input field= {np.average(input)} result= {np.average(send_buf)} received from neighbor = { np.average(recv_buf)}")
 
