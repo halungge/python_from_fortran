@@ -90,9 +90,19 @@ contains
     subroutine cleanup
         logical finalized
         call mpi_finalized(finalized, ierr)
-        if (.not. finalized) then
-            call mpi_finalize(ierr)
+        if (ierr /= 0 ) then
+            print *, "error calling finalized not rank: ", my_rank
         end if
+        if (.not. finalized) then
+            print *, "communicator.f90: finalizing mpi on rank ", my_rank
+            call mpi_finalize(ierr)
+            if (ierr /= 0) then
+                print *, "error calling mpi_finalize not rank: ", my_rank
+            end if
+        else
+            print *, "error calling finalized not rank: ", my_rank
+        end if
+
     end subroutine cleanup
 
 end module communicator

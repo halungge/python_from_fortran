@@ -12,27 +12,28 @@ program run_parallel
 
 
 
-    idim = 4
-    jdim = 8
+    idim = 32
+    jdim = 64
     allocate(field(idim, jdim), result_field(idim, jdim))
 
 
     !call random_number(field)
     call get_my_rank(me)
     field = reshape((/(i, i=me, me + idim * jdim)/), (/idim, jdim/))
-    call exchangeleft(field(1:idim, 2), field(1:idim, 1), ierr)
-    print *, "rank ", me, "left send buffer", field(1:idim, 2)
-    print *, "rank ", me, "left recv buffer", field(1:idim, 1)
-    call exchangeright(field(1:idim, jdim-1), field(1:idim, jdim), ierr)
-    print *, "rank ", me, "right send buffer", field(1:idim, jdim-1)
-    print *, "rank ", me, "right recv buffer", field(1:idim, jdim)
     print *
-    print *
+    if (my_rank == 0) then
+        print *, "---grid halo information information---"
+    end if
 
+    print *, "rank ", me, "LEFT send buffer", field(1:idim, 2)
+    print *, "rank ", me, "LEFT recv buffer", field(1:idim, 1)
+    print *, "rank ", me, "RIGHT send buffer", field(1:idim, jdim-1)
+    print *, "rank ", me, "RIGHT recv buffer", field(1:idim, jdim)
+    print *
+    print *
 
     call run_cart_step(field, result_field, idim, jdim)
-
-    print *,"DONE"
+    print *,"rank ", my_rank, " DONE"
     call cleanup()
 
 end program run_parallel

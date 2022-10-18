@@ -51,6 +51,7 @@ def run_cart_step(input_ptr:np.ndarray, output_ptr: np.ndarray, x_length:int, y_
     input_field = np_as_located_field(IDim, JDim)(in_unpack)
     output_field = np_as_located_field(IDim, JDim)(out_unpack)
     cart_laplace(input_field, output_field, offset_provider={"Ioff": IDim, "Joff":JDim})
+    print(f"done with step")
 
 def unpack(ptr, size_x, size_y) -> np.ndarray:
     """
