@@ -5,7 +5,7 @@ program run_parallel
     use driver
     implicit none
 
-    integer nSteps, t, i, me, ierr
+    integer nSteps, t, i, me, ierr, comm_id
     integer(c_int) idim, jdim
     real(c_double), allocatable :: field(:,:)
     real(c_double), allocatable:: result_field(:,:)
@@ -20,6 +20,7 @@ program run_parallel
 
     call random_number(field(:,2:jdim-1))
     call setup_comm()
+    call get_comm_id(comm_id)
     call get_my_rank(me)
 !    print *
 !
@@ -29,7 +30,7 @@ program run_parallel
 !    print *, "rank ", me, "RIGHT recv buffer", field(1:idim, jdim)
 !    print *
 
-    call run_cart_step(field, result_field, idim, jdim)
+    call run_cart_step1(comm_id, field, result_field, idim, jdim)
     call cleanup()
 
 end program run_parallel

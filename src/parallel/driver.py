@@ -52,6 +52,30 @@ def run_cart_step(input_ptr:np.ndarray, output_ptr: np.ndarray, x_length:int, y_
     cart_laplace(input_field, output_field, offset_provider={"Ioff": IDim, "Joff":JDim})
     communicator.cleanup()
 
+
+@ffi.def_extern(onerror=handle_error)
+def run_cart_step1(comm_ptr:int, input_ptr:np.ndarray, output_ptr: np.ndarray, x_length:int, y_length:int):
+    in_unpack = unpack(input_ptr, x_length, y_length)
+    out_unpack = unpack(output_ptr, x_length, y_length)
+    comm = MPI.Comm.f2py(comm_ptr)
+    num_procs = comm.Get_size()
+    print(comm.Get_name())
+    comm.Get_topology()
+    print(f"num procs in comm {num_procs}")
+    my_rank = comm.Get_rank()
+    print(f"driver.py: rank {my_rank} python pid {os.getpid()}")
+    print(f"driver.py: rank {my_rank} run_cart_step: before exchange params sending left ={in_unpack[1, 0:x_length]} receiving from right={in_unpack[0, 0:x_length]}, xlength={x_length}, ylength={y_length}")
+    left_neighbor = (my_rank - 1 )% num_procs
+    right_neighbor = (my_rank + 1)%num_procs
+    comm.Send(in_unpack[1, 0:x_length], left_neighbor, 0)
+    comm.Recv(in_unpack[0, 0:x_length], right_neighbor, 0)
+    print(f"driver.py: rank {my_rank} run_cart_step: after exchange params sending left ={in_unpack[1, 0:x_length]} received from right={in_unpack[0, 0:x_length]}, xlength={x_length}, ylength={y_length}")
+
+    input_field = np_as_located_field(IDim, JDim)(in_unpack)
+    output_field = np_as_located_field(IDim, JDim)(out_unpack)
+    cart_laplace(input_field, output_field, offset_provider={"Ioff": IDim, "Joff":JDim})
+
+
 def unpack(ptr, size_x, size_y) -> np.ndarray:
     """
     unpacks a 2d c/fortran field into a numpy array.

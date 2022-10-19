@@ -27,6 +27,7 @@ contains
         !call MPI_Group_excl(group_world, 1, 0, group_worker, ierr)  ! process 0 not member
         call MPI_Comm_group(comm_world, group_workers, ierr)
         call MPI_Comm_create(comm_world, group_workers, comm_workers, ierr)
+        call MPI_comm_set_name(comm_workers, "comm_workers", ierr)
 
         call MPI_Comm_size(comm_workers, num_procs, ierr)
         call MPI_comm_rank(comm_workers, my_rank, ierr)
