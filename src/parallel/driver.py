@@ -1,6 +1,8 @@
 import sys
 from dataclasses import Field
 
+from mpi4py.MPI import Comm, Cartcomm
+
 sys.path.insert(0, "/home/magdalena/Projects/exclaim/fortran_stuff/py4f/src/parallel")
 import numpy as np
 from functional.iterator.embedded import np_as_located_field
@@ -48,8 +50,19 @@ def run_cart_step(comm_ptr:int, input_ptr:np.ndarray, output_ptr: np.ndarray, x_
 
 @ffi.def_extern(onerror=handle_error)
 def run(comm_ptr:int, input_ptr:np.ndarray, output_ptr: np.ndarray, x_length:int, y_length:int):
-    def do_step(in_field:Field[[IDim, JDim], float], out_field:Field[[IDim, JDim], float]):
-        do_halo_exchange(comm_ptr, in_unpacked, x_length)
+    def get_comm(comm_ptr:int):
+        comm = MPI.Comm.f2py(comm_ptr)
+        num_procs = comm.Get_size()
+        topo = comm.Get_topology()
+        name = comm.Get_name()
+        my_rank = comm.Get_rank()
+        left_neighbor, right_neighbor = comm.Shift(0, 1)
+        print(
+            f"using {name} ({comm_ptr}) : #procs {num_procs} topology {topo}, rank {my_rank}, left: {left_neighbor}, right:{right_neighbor}")
+        return comm
+
+    def do_step(comm:Comm, in_field:Field[[IDim, JDim], float], out_field:Field[[IDim, JDim], float], verbose:bool):
+        do_halo_exchange(comm, in_unpacked, x_length, verbose)
         cart_laplace(in_field, out_field, offset_provider={"Ioff": IDim, "Joff": JDim})
         in_field = out_field
 
@@ -57,24 +70,18 @@ def run(comm_ptr:int, input_ptr:np.ndarray, output_ptr: np.ndarray, x_length:int
     out_unpacked = unpack(output_ptr, x_length, y_length)
     input_field = np_as_located_field(IDim, JDim)(in_unpacked)
     output_field = np_as_located_field(IDim, JDim)(out_unpacked)
+    comm = get_comm(comm_ptr)
     for i in range(10):
-        print(f" step {i}")
-        do_step(input_field, output_field)
+        do_step(comm, input_field, output_field, verbose= i == 0)
 
 
 
-def do_halo_exchange(comm_ptr:int, field:np.ndarray, length):
-    comm = MPI.Comm.f2py(comm_ptr)
-    num_procs = comm.Get_size()
-    topo = comm.Get_topology()
-    name = comm.Get_name()
-    my_rank = comm.Get_rank()
-    left_neighbor = (my_rank - 1) % num_procs
-    right_neighbor = (my_rank + 1) % num_procs
-    print(f"using {name} ({comm_ptr}) : #procs {num_procs} topology {topo}, rank {my_rank}, left: {left_neighbor}, right:{right_neighbor}")
+def do_halo_exchange(comm:Cartcomm, field:np.ndarray, length, verbose: bool):
+    left_neighbor, right_neighbor = comm.Shift(0, 1)
     comm.Sendrecv(field[1, 0:length], left_neighbor, 0, field[0, 0:length], right_neighbor, 0)
-    print(
-        f"driver.py: rank {my_rank} halo exchange: after exchange params sending left ={field[1, 0:length]} received from right={field[0, 0:length]}")
+    if verbose:
+        print(
+            f"driver.py: rank {comm.Get_rank()} halo exchange: after exchange params sending left ={field[1, 0:length]} received from right={field[0, 0:length]}")
 
 def unpack(ptr, size_x, size_y) -> np.ndarray:
     """

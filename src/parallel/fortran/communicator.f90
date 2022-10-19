@@ -21,24 +21,23 @@ contains
 
     subroutine setup_comm
         call init(ierr)
+
         ! set up communicator
         comm_world = MPI_COMM_WORLD
         call MPI_Comm_group(comm_world, group_world, ierr)
-        !call MPI_Group_excl(group_world, 1, 0, group_worker, ierr)  ! process 0 not member
-        call MPI_Comm_group(comm_world, group_workers, ierr)
-        call MPI_Comm_create(comm_world, group_workers, comm_workers, ierr)
-        call MPI_comm_set_name(comm_workers, "comm_workers", ierr)
-
         call MPI_Comm_size(comm_workers, num_procs, ierr)
+        call MPI_Comm_group(comm_world, group_workers, ierr)
+        call MPI_Cart_create(comm_world, 1, [num_procs], [.True.], .True., comm_workers, ierr)
+        call MPI_comm_set_name(comm_workers, "comm_workers", ierr)
         call MPI_comm_rank(comm_workers, my_rank, ierr)
-        left_neighbor = mod((my_rank - 1 + num_procs), num_procs)
-        right_neighbor = mod((my_rank + 1), num_procs)
+
         if (my_rank == 0) then
             print *, "communicator.f90: setting up communicator"
             print *, "communicator.f90: communication pattern:"
         end if
         call mpi_barrier(MPI_COMM_WORLD, ierr)
-        print *, "comm:", comm_workers, "me ", my_rank, ": left ", left_neighbor, ", right ", right_neighbor
+        call mpi_cart_shift(comm_workers, 0, 1, left_neighbor, right_neighbor, ierr)
+        print *, "comm id:", comm_workers, "me ", my_rank, ": left ", left_neighbor, ", right ", right_neighbor
         call mpi_barrier(MPI_COMM_WORLD, ierr)
     end subroutine setup_comm
 
