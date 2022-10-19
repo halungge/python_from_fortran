@@ -1,5 +1,5 @@
-
-import sys;
+import os
+import sys
 sys.path.insert(0, "/home/magdalena/Projects/exclaim/fortran_stuff/py4f/src/parallel")
 import numpy as np
 from functional.iterator.embedded import np_as_located_field
@@ -19,15 +19,6 @@ def run_step_invert(comm, input, recv_buf, send_buf):
     local_invert(input_field, result_field, offset_provider={})
 
 
-# get these sizes from the mesh
-# should the mesh be defined locally
-@ffi.def_extern()
-def run_step(input:np.ndarray, output: np.ndarray, x_length:int, local_size:int):
-    communicator.exchangeleft(input[x_length, 2*x_length], input[0:x_length])
-    communicator.exchangeright(input[local_size - 2 * x_length, local_size -x_length], input[local_size-x_length:local_size])
-    #laplace(input, output, offset_provider={"V2E2V", mesh.get_v2e2v_offset()})
-
-
 def handle_error(exception, exc_value, traceback):
     print(f"exception {exception} value {exc_value}")
     if traceback is not None:
@@ -44,14 +35,18 @@ def handle_error(exception, exc_value, traceback):
 def run_cart_step(input_ptr:np.ndarray, output_ptr: np.ndarray, x_length:int, y_length:int):
     in_unpack = unpack(input_ptr, x_length, y_length)
     out_unpack = unpack(output_ptr, x_length, y_length)
-    communicator.exchangeleft(in_unpack[1, 0:x_length], out_unpack[0, 0:x_length])
-    communicator.exchangeright(in_unpack[y_length - 2, 0:x_length], out_unpack[y_length - 1, 0:x_length])
-    print(f"run_cart_step: params input={in_unpack}, xlength={x_length}, ylength={y_length}")
+    communicator.setup_comm()
+    my_rank = communicator.get_my_rank()
+    print(f"driver.py: rank {my_rank} python pid {os.getpid()}")
+    print(f"driver.py: rank {my_rank} run_cart_step: before exchange params sending left ={in_unpack[1, 0:x_length]} receiving from right={in_unpack[0, 0:x_length]}, xlength={x_length}, ylength={y_length}")
+    communicator.exchangeleft(in_unpack[1, 0:x_length], in_unpack[0, 0:x_length])
+    communicator.exchangeright(in_unpack[y_length - 2, 0:x_length], in_unpack[y_length - 1, 0:x_length])
+    print(f"driver.py: rank {my_rank} run_cart_step: after exchange params sending left ={in_unpack[1, 0:x_length]} received from right={in_unpack[0, 0:x_length]}, xlength={x_length}, ylength={y_length}")
 
     input_field = np_as_located_field(IDim, JDim)(in_unpack)
     output_field = np_as_located_field(IDim, JDim)(out_unpack)
     cart_laplace(input_field, output_field, offset_provider={"Ioff": IDim, "Joff":JDim})
-    print(f"done with step")
+    communicator.cleanup()
 
 def unpack(ptr, size_x, size_y) -> np.ndarray:
     """

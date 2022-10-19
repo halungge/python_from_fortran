@@ -32,8 +32,8 @@ contains
         left_neighbor = mod((my_rank - 1 + num_procs), num_procs)
         right_neighbor = mod((my_rank + 1), num_procs)
         if (my_rank == 0) then
-            print *, "setting up communicator"
-            print *, "communication pattern:"
+            print *, "communicator.f90: setting up communicator"
+            print *, "communicator.f90: communication pattern:"
         end if
         call mpi_barrier(MPI_COMM_WORLD, ierr)
         print *, "me ", my_rank, ": left ", left_neighbor, ", right ", right_neighbor
@@ -80,6 +80,13 @@ contains
         call exchange(right_neighbor, left_neighbor, sendb, recvb, err)
     end subroutine exchangeRight
 
+    subroutine bcast(buffer, size, err)
+        real(8), intent(in) :: buffer(:)
+        integer, intent(in):: size
+        integer, intent(out):: err
+        call mpi_bcast(buffer, size, MPI_DOUBLE, 0, comm_workers, err)
+    end subroutine bcast
+
     subroutine get_my_rank(y)
         integer, intent(out):: y
         y = my_rank
@@ -91,18 +98,17 @@ contains
         logical finalized
         call mpi_finalized(finalized, ierr)
         if (ierr /= 0 ) then
-            print *, "error calling finalized not rank: ", my_rank
+            print *, "communicator.f90: error calling finalized on rank: ", my_rank
         end if
         if (.not. finalized) then
             print *, "communicator.f90: finalizing mpi on rank ", my_rank
             call mpi_finalize(ierr)
             if (ierr /= 0) then
-                print *, "error calling mpi_finalize not rank: ", my_rank
+                print *, "communicator.f90: error calling mpi_finalize not rank: ", my_rank
             end if
         else
-            print *, "error calling finalized not rank: ", my_rank
+            print *, "communicator.f90: error calling finalized on rank: ", my_rank
         end if
-
     end subroutine cleanup
 
 end module communicator
