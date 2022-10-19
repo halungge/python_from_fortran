@@ -8,7 +8,6 @@ from parallel.dimensions import VDim, IDim, JDim
 from parallel.operators import local_invert, cart_laplace
 import mpi4py
 mpi4py.rc.initialize=False
-from fortran.fortran_communicator import communicator
 
 from driver_plugin import ffi
 
@@ -35,46 +34,30 @@ def handle_error(exception, exc_value, traceback):
         yl = traceback.tb_frame.f_locals['y_length']
         print(f"sizes {xl} x {yl}")
 
-@ffi.def_extern(onerror=handle_error)
-def run_cart_step(input_ptr:np.ndarray, output_ptr: np.ndarray, x_length:int, y_length:int):
-    in_unpack = unpack(input_ptr, x_length, y_length)
-    out_unpack = unpack(output_ptr, x_length, y_length)
-    communicator.setup_comm()
-    my_rank = communicator.get_my_rank()
-    print(f"driver.py: rank {my_rank} python pid {os.getpid()}")
-    print(f"driver.py: rank {my_rank} run_cart_step: before exchange params sending left ={in_unpack[1, 0:x_length]} receiving from right={in_unpack[0, 0:x_length]}, xlength={x_length}, ylength={y_length}")
-    communicator.exchangeleft(in_unpack[1, 0:x_length], in_unpack[0, 0:x_length])
-    communicator.exchangeright(in_unpack[y_length - 2, 0:x_length], in_unpack[y_length - 1, 0:x_length])
-    print(f"driver.py: rank {my_rank} run_cart_step: after exchange params sending left ={in_unpack[1, 0:x_length]} received from right={in_unpack[0, 0:x_length]}, xlength={x_length}, ylength={y_length}")
 
-    input_field = np_as_located_field(IDim, JDim)(in_unpack)
-    output_field = np_as_located_field(IDim, JDim)(out_unpack)
+
+@ffi.def_extern(onerror=handle_error)
+def run_cart_step(comm_ptr:int, input_ptr:np.ndarray, output_ptr: np.ndarray, x_length:int, y_length:int):
+    in_unpacked = unpack(input_ptr, x_length, y_length)
+    out_unpacked = unpack(output_ptr, x_length, y_length)
+    do_halo_exchange(comm_ptr, in_unpacked, x_length)
+    input_field = np_as_located_field(IDim, JDim)(in_unpacked)
+    output_field = np_as_located_field(IDim, JDim)(out_unpacked)
     cart_laplace(input_field, output_field, offset_provider={"Ioff": IDim, "Joff":JDim})
-    communicator.cleanup()
 
 
-@ffi.def_extern(onerror=handle_error)
-def run_cart_step1(comm_ptr:int, input_ptr:np.ndarray, output_ptr: np.ndarray, x_length:int, y_length:int):
-    in_unpack = unpack(input_ptr, x_length, y_length)
-    out_unpack = unpack(output_ptr, x_length, y_length)
+def do_halo_exchange(comm_ptr:int, field:np.ndarray, length):
     comm = MPI.Comm.f2py(comm_ptr)
     num_procs = comm.Get_size()
-    print(comm.Get_name())
-    comm.Get_topology()
-    print(f"num procs in comm {num_procs}")
+    topo = comm.Get_topology()
+    name = comm.Get_name()
     my_rank = comm.Get_rank()
-    print(f"driver.py: rank {my_rank} python pid {os.getpid()}")
-    print(f"driver.py: rank {my_rank} run_cart_step: before exchange params sending left ={in_unpack[1, 0:x_length]} receiving from right={in_unpack[0, 0:x_length]}, xlength={x_length}, ylength={y_length}")
-    left_neighbor = (my_rank - 1 )% num_procs
-    right_neighbor = (my_rank + 1)%num_procs
-    comm.Send(in_unpack[1, 0:x_length], left_neighbor, 0)
-    comm.Recv(in_unpack[0, 0:x_length], right_neighbor, 0)
-    print(f"driver.py: rank {my_rank} run_cart_step: after exchange params sending left ={in_unpack[1, 0:x_length]} received from right={in_unpack[0, 0:x_length]}, xlength={x_length}, ylength={y_length}")
-
-    input_field = np_as_located_field(IDim, JDim)(in_unpack)
-    output_field = np_as_located_field(IDim, JDim)(out_unpack)
-    cart_laplace(input_field, output_field, offset_provider={"Ioff": IDim, "Joff":JDim})
-
+    left_neighbor = (my_rank - 1) % num_procs
+    right_neighbor = (my_rank + 1) % num_procs
+    print(f"using {name} ({comm_ptr}) : #procs {num_procs} topology {topo}, rank {my_rank}, left: {left_neighbor}, right:{right_neighbor}")
+    comm.Sendrecv(field[1, 0:length], left_neighbor, 0, field[0, 0:length], right_neighbor, 0)
+    print(
+        f"driver.py: rank {my_rank} run_cart_step: after exchange params sending left ={field[1, 0:length]} received from right={field[0, 0:length]}")
 
 def unpack(ptr, size_x, size_y) -> np.ndarray:
     """

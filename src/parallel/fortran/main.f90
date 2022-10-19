@@ -30,7 +30,7 @@ program run_parallel
 !    print *, "rank ", me, "RIGHT recv buffer", field(1:idim, jdim)
 !    print *
 
-    call run_cart_step1(comm_id, field, result_field, idim, jdim)
+    call run_cart_step(comm_id, field, result_field, idim, jdim)
     call cleanup()
 
 end program run_parallel

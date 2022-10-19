@@ -6,8 +6,7 @@ build_path="."
 plugin_name="driver_plugin"
 c_header = """
 extern void run_step(double* input, double* output, int xLength, int yLength);
-extern void run_cart_step(double* input, double* output, int xLength, int yLength);
-extern void run_cart_step1(int comm_id,double* input, double* output, int xLength, int yLength);  
+extern void run_cart_step(int comm_id,double* input, double* output, int xLength, int yLength);  
 """
 
 

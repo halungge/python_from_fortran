@@ -11,20 +11,13 @@ module driver
             real(c_double), intent(out) :: output(localSize)
         end subroutine run_step
 
-        subroutine run_cart_step(input, output, ni, nj) bind(c, name='run_cart_step')
-            use iso_c_binding
-            integer(c_int), value, intent(in)::ni, nj
-            real(c_double), intent(in):: input(ni,nj)
-            real(c_double), intent(out) :: output(ni,nj)
-        end subroutine run_cart_step
-
-        subroutine run_cart_step1(comm, input, output, ni, nj) bind(c, name='run_cart_step1')
+        subroutine run_cart_step(comm, input, output, ni, nj) bind(c, name='run_cart_step')
             use iso_c_binding
             integer(c_int), value, intent(in)::ni, nj
             integer(c_int), value, intent(in)::comm
             real(c_double), intent(in):: input(ni,nj)
             real(c_double), intent(out) :: output(ni,nj)
-        end subroutine run_cart_step1
+        end subroutine run_cart_step
     end interface
 
 end module driver
