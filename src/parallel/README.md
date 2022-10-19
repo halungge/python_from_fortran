@@ -1,128 +1,95 @@
-# MPI4Py
-`mpi4py` needs a running mpi installation
+# Goal 
+the goal of this experiment is to find out how you can use [MPI communication](https://www.open-mpi.org/) for programs
+interfacing Python and Fortran. 
+
+## MPI4Py
 see [mpi4py documentation](https://mpi4py.readthedocs.io/en/stable/)
+`mpi4py` needs a running mpi installation, it provides Python wrapper around C MPI
+For basic usage see examples in documentation or see [hello_mpi.py](./hello_mpi.py)
+
+## basic observations
+### initialization of mpi4py
+MPI needs to be initialized with a call to `MPI_Init` this initialization must be done only once. 
+`from mpi4py import MPI`
+calls `MPI_init` implicitly so if you want to do the initialization by hand, before the import of `MPI` do
+```python
+import mpi4py
+mpi4py.rc.initialize=False
+```
 
 
-## things to check
-- [ ] upper vs lower case communication methods
-
-on the Comm class there are several communication functions defined:
+### upper vs lower case communication methods
+on the `Comm` class 
+in `mpi4py`  there are communication functions defined that differ only in the case of the first letter:
 ```
 comm.Send(...)
 comm.send(...)
+(...)
 ```
+The capital one expects buffers and data types (as it is used in MPI C interface) and can be used directly for python objects
+implementing the Puffer buffer interface. The lower case ones supposedly take any python object and pickle it. Since we
+are interested in Fortran/C arrays and numpy ndarrays we need to *upper case* ones
 
-It seems that the capital one expects buffers and data types (as it is used in MPI C interface) and can be used directly for python objects
-implementing the buffer interface. The small case one takes any python object and pickles it.
-
+### running the hello_mpi example
 ```commandline
-def Send(self, buf, dest, tag=0):
-    
-def send(self, obj, dest, tag=0): # real signature unknown; restored from __doc__
-```
-but I did not get the lower case one to run.
-
-## intercommunication between languages
-the goal is to check whether and how a communicator defined from a fortran code can be used/ accessed from within 
-Python. The szenario being a model that is setup in Fortran and calls an embedded function (via CFFI or some wrapper)
-library (see top level [README](../../README.md)). This function communicates a MPI communicator that has been setup
-in the initial model setup.
-
-
-## Mesh
-to keep thing simple we only use vertices and edges and we split procs only along one dimension
-the field is periodic that is the domain can be understood as torus where we only cut "slices".
-
-We restrict shifts to V2E2V, or V2E: that is we shift from one Vertex along adjacent edges to the neighboring vertices. 
-### vertices
-We have a total number of `n_global_vertices = 96` vertices where on the proc-local dimension there are 8 vertical vertices.
-That means that locally we have `n_global_vertices / 8 / num_procs` horizontal vertices. The number of halo vertices is always 2 * 8.
-
-### edges
-for each vertex there are 3 edges. With the available shiftings the mesh can be defined such that only non-proc-local (halo) edges are only needed from one neighbor.
-Hence here aswell we need `2 * 8` halo edges.
-
-(-> include pic)
-
-
-## building with f2py
-
-```commandline
-> cd fortran
-> python -m numpy.f2py communicator.f90 -m fortran_communicator -h communicator.pyf --overwrite-signature
-> python -m numpy.f2py --f90exec=mpif90 --f77exec=mpif77 -c communicator.pyf communicator.f90
-
- 
-```
-The first line generates a `communicator.pyf` 
-wrapper that can be further manipulated by hand.
-
-then im python
-
-```python
->>> from fortran_communicator import communicator
->>> communicator.setup_comm()
->>> error = communicator.exchangeleft(a,b)
->>> communicator.cleanup()
+> mpiexec -np 4 python hello_mpi.py 
 ```
 
-### py2f and fortran args: intent(...)
-`numpy` arrays that are fortran contiguous and has a `dtype` maching the fortran type
-
-TODO: type list
-the input array is directly passed. If this i not the case a Fortran contiguous copy is made and
-passed to the Fortran routine. *The original array is not manipulated and stays the same.!*
-If you want the manipulation to be reflected in the input array 
-(Fortran `intent(inout)`) either use a Fortran contiguous array or use the (py2f specific)
-`intent(inplace)` in the .py2f
-
-#### intent(in)
-creates an python input parameter in the python function
-#### intent(out)
-creates a return value, no corresponding input argument is taken. 
-#### intent(inout)
-creates an input parameter
-#### input(inplace)
-`py2f` addition (see above) use for inplace manipulation of non fortran contiguous arrays.
-
-see [py2f doc](https://numpy.org/doc/stable/f2py/f2py.getting-started.html)
+## intercommunication experiment
+### setup
+1. the entire experiment is driven by a Fortran main program. It initializes data arrays and creates a custom communicator.
+2. define a python function that calculates a stencil on a local field doing the necessary halo exchange in python. The 
+halo exchange is done using a previousely defined communicator.
+2. this python program is called from the Fortran main program via the CFFI embedding with Fortran bindings  (see top level [README](../../README.md)))
 
 
-### running
+### Mesh and Topology
+For simplicity we use a 2D Cartesian field and a Cartesian Topology in the communicator (see [communicator.f90](./fortran/communicator.90))
+
+### Communicator re-usage
+the communicator in Fortran is represented by an integer value. This value needs to be passed to python such that python can
+look up the correct communicator from the MPI runtime.
+`mpi4py` provides a class method [f2py](https://mpi4py.readthedocs.io/en/stable/reference/mpi4py.MPI.Comm.html#mpi4py.MPI.Comm.f2py)on the `Comm` class 
+that takes the integer value and returns the communicator instance
+This is not to be confused with the example about [wrapping mpi with numpy.f2py](https://mpi4py.readthedocs.io/en/stable/tutorial.html#wrapping-with-f2py) in the docs.
+
+
+
+### How to build and run the example
+Running
 ```bash
+> python driver_builder.py
+```
+creates the C shared library that captured by the Fortran interface in [driver.f90](./fortran/driver.f90). It creates 
+```commandline
+driver_plugin.h
+driver_plugin.c
+driver_plugin.o
+libdriver_plugin.so
+```
+in the current directory
 
-
+```commandline
 > cd fortran
-> python -m numpy.f2py communicator.f90 -m fortran_communicator -h communicator.pyf --overwrite-signature
-> python -m numpy.f2py --f90exec=mpif90 --f77exec=mpif77 -c communicator.pyf communicator.f90
-> cd ..
-> python driver_builder.py 
 > export LIB=../
-> mpif90 -I$LIB -Wl,-rpath=$LIB -L$LIB  communicator.f90 driver.f90 main.f90 -ldriver_plugin
-> mpiexec -n 4 ./a.out
+> mpif90 -I$LIB -Wl,-rpath=$LIB -L$LIB  communicator.f90 driver.f90 main.f90 -ldriver_plugin -o run_parallel
+> mpiexec -n 4 ./run_parallel
 ```
 
 
 
-### TODO
-- check data layout
-- check args (intent(in), intent(out)) from the [`f2py` documentation](https://numpy.org/doc/stable/f2py/f2py.getting-started.html)
 
 
-
-
-## main expertiment
-- [ ] Fortran: program: initialize communicator
-- [ ] Fortran: initialize local fields
+## experiment
+- [x] Fortran: program: initialize communicator
+- [x] Fortran: initialize local fields
 - [x] python: gt4py program
 - [x] python: driver: exchange + program call
 - [x] python: cffi wrapper
 - [x] Fortran: interface for driver call
-- [ ] Fortran: call driver
-- [ ] exercise: switch to unstructured grid!
 
-## potential problems:
- - [ ] py2f: iso_c_binding??
- - [ ] how does py2f handle fortran arrays, layouting, what are the requirements there
+## TODOs:
+-  [ ] opposite direction: create communicator in python and use it from Fortran 
+ - [ ] generate Fortran Interface for generated C Library 
  - [ ] cffi builder generalize
-
+- [ ] exercise: switch to unstructured grid!
