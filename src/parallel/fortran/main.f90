@@ -17,21 +17,16 @@ program run_parallel
 
     allocate(field(idim, jdim), result_field(idim, jdim))
     field = 0.0
-
     call random_number(field(:,2:jdim-1))
+
     call setup_comm()
     call get_comm_id(comm_id)
-    call get_my_rank(me)
-!    print *
-!
-!    print *, "rank ", me, "LEFT send buffer", field(1:idim, 2)
-!    print *, "rank ", me, "LEFT recv buffer", field(1:idim, 1)
-!    print *, "rank ", me, "RIGHT send buffer", field(1:idim, jdim-1)
-!    print *, "rank ", me, "RIGHT recv buffer", field(1:idim, jdim)
-!    print *
 
-    call run_cart_step(comm_id, field, result_field, idim, jdim)
-    call cleanup()
+    call run_driver(comm_id, field, result_field, idim, jdim)
+    call get_my_rank(my_rank)
+    print*, "rank", my_rank, "result:", result_field
+
+    call cleanup_comm()
 
 end program run_parallel
 

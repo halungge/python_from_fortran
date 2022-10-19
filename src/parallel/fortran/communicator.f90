@@ -86,13 +86,6 @@ contains
         call exchange(right_neighbor, left_neighbor, sendb, recvb, err)
     end subroutine exchangeRight
 
-    subroutine bcast(buffer, size, err)
-        real(8), intent(in) :: buffer(:)
-        integer, intent(in):: size
-        integer, intent(out):: err
-        call mpi_bcast(buffer, size, MPI_DOUBLE, 0, comm_workers, err)
-    end subroutine bcast
-
     subroutine get_my_rank(y)
         integer, intent(out):: y
         y = my_rank
@@ -100,7 +93,7 @@ contains
 
 
 
-    subroutine cleanup
+    subroutine cleanup_comm
         logical finalized
         call mpi_finalized(finalized, ierr)
         if (ierr /= 0 ) then
@@ -115,6 +108,6 @@ contains
         else
             print *, "communicator.f90: rank", my_rank,  ": mpi already finalized "
         end if
-    end subroutine cleanup
+    end subroutine cleanup_comm
 
 end module communicator

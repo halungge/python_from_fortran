@@ -1,5 +1,6 @@
-import os
 import sys
+from dataclasses import Field
+
 sys.path.insert(0, "/home/magdalena/Projects/exclaim/fortran_stuff/py4f/src/parallel")
 import numpy as np
 from functional.iterator.embedded import np_as_located_field
@@ -45,6 +46,22 @@ def run_cart_step(comm_ptr:int, input_ptr:np.ndarray, output_ptr: np.ndarray, x_
     output_field = np_as_located_field(IDim, JDim)(out_unpacked)
     cart_laplace(input_field, output_field, offset_provider={"Ioff": IDim, "Joff":JDim})
 
+@ffi.def_extern(onerror=handle_error)
+def run(comm_ptr:int, input_ptr:np.ndarray, output_ptr: np.ndarray, x_length:int, y_length:int):
+    def do_step(in_field:Field[[IDim, JDim], float], out_field:Field[[IDim, JDim], float]):
+        do_halo_exchange(comm_ptr, in_unpacked, x_length)
+        cart_laplace(in_field, out_field, offset_provider={"Ioff": IDim, "Joff": JDim})
+        in_field = out_field
+
+    in_unpacked = unpack(input_ptr, x_length, y_length)
+    out_unpacked = unpack(output_ptr, x_length, y_length)
+    input_field = np_as_located_field(IDim, JDim)(in_unpacked)
+    output_field = np_as_located_field(IDim, JDim)(out_unpacked)
+    for i in range(10):
+        print(f" step {i}")
+        do_step(input_field, output_field)
+
+
 
 def do_halo_exchange(comm_ptr:int, field:np.ndarray, length):
     comm = MPI.Comm.f2py(comm_ptr)
@@ -57,7 +74,7 @@ def do_halo_exchange(comm_ptr:int, field:np.ndarray, length):
     print(f"using {name} ({comm_ptr}) : #procs {num_procs} topology {topo}, rank {my_rank}, left: {left_neighbor}, right:{right_neighbor}")
     comm.Sendrecv(field[1, 0:length], left_neighbor, 0, field[0, 0:length], right_neighbor, 0)
     print(
-        f"driver.py: rank {my_rank} run_cart_step: after exchange params sending left ={field[1, 0:length]} received from right={field[0, 0:length]}")
+        f"driver.py: rank {my_rank} halo exchange: after exchange params sending left ={field[1, 0:length]} received from right={field[0, 0:length]}")
 
 def unpack(ptr, size_x, size_y) -> np.ndarray:
     """
