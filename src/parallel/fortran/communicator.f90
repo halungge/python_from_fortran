@@ -41,6 +41,10 @@ contains
         call mpi_barrier(MPI_COMM_WORLD, ierr)
     end subroutine setup_comm
 
+    subroutine get_comm_id(comm_id)
+        integer, intent(out):: comm_id
+        comm_id = comm_workers
+    end subroutine get_comm_id
 
     subroutine exchange(to,from, sendb, recvb,  err)
         implicit none
@@ -99,16 +103,16 @@ contains
         logical finalized
         call mpi_finalized(finalized, ierr)
         if (ierr /= 0 ) then
-            print *, "communicator.f90: error calling finalized on rank: ", my_rank
+            print *, "communicator.f90: rank", my_rank, ": error calling finalized"
         end if
         if (.not. finalized) then
-            print *, "communicator.f90: finalizing mpi on rank ", my_rank
+            print *, "communicator.f90: rank ", my_rank,  ": finalizing mpi "
             call mpi_finalize(ierr)
             if (ierr /= 0) then
-                print *, "communicator.f90: error calling mpi_finalize not rank: ", my_rank
+                print *, "communicator.f90: rank", my_rank,  ": error calling mpi_finalize "
             end if
         else
-            print *, "communicator.f90: error calling finalized on rank: ", my_rank
+            print *, "communicator.f90: rank", my_rank,  ": mpi already finalized "
         end if
     end subroutine cleanup
 

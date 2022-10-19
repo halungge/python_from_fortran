@@ -87,9 +87,28 @@ creates an input parameter
 
 see [py2f doc](https://numpy.org/doc/stable/f2py/f2py.getting-started.html)
 
+
+### running
+```bash
+
+
+> cd fortran
+> python -m numpy.f2py communicator.f90 -m fortran_communicator -h communicator.pyf --overwrite-signature
+> python -m numpy.f2py --f90exec=mpif90 --f77exec=mpif77 -c communicator.pyf communicator.f90
+> cd ..
+> python driver_builder.py 
+> export LIB=../
+> mpif90 -I$LIB -Wl,-rpath=$LIB -L$LIB  communicator.f90 driver.f90 main.f90 -ldriver_plugin
+> mpiexec -n 4 ./a.out
+```
+
+
+
 ### TODO
 - check data layout
 - check args (intent(in), intent(out)) from the [`f2py` documentation](https://numpy.org/doc/stable/f2py/f2py.getting-started.html)
+
+
 
 
 ## main expertiment

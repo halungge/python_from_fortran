@@ -6,9 +6,13 @@ from functional.iterator.embedded import np_as_located_field
 
 from parallel.dimensions import VDim, IDim, JDim
 from parallel.operators import local_invert, cart_laplace
+import mpi4py
+mpi4py.rc.initialize=False
 from fortran.fortran_communicator import communicator
 
 from driver_plugin import ffi
+
+from mpi4py import MPI
 
 
 
