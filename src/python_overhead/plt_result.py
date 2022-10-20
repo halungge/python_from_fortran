@@ -1,3 +1,4 @@
+# noqa: E800
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
@@ -22,4 +23,4 @@ plt.ylabel("ratio python/fortran")
 fig.tight_layout()
 plt.show()
 # plt.bar(dims, pure_overhead)
-#plt.savefig("output.png", format="png")
+# plt.savefig("output.png", format="png")

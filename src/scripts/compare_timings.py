@@ -1,4 +1,4 @@
-# noqa D100, D103
+# flake8: noqa D100, D103, E800
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np

@@ -53,7 +53,8 @@ look up the correct communicator from the MPI runtime.
 that takes the integer value and returns the communicator instance
 This is not to be confused with the example about [wrapping mpi with numpy.f2py](https://mpi4py.readthedocs.io/en/stable/tutorial.html#wrapping-with-f2py) in the docs.
 
-
+### rabbit holes
+using the wrapping option with `numpy.f2py` TODO short description
 
 ### How to build and run the example
 Running

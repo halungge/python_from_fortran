@@ -33,7 +33,9 @@ repos:
   rev: 22.3.0
   hooks:
   - id: black
-    args: [--target-version, py310]
+    args:
+    - --target-version=py310
+    - --line-length=88
 
 - repo: https://github.com/pre-commit/mirrors-isort
   rev: v5.10.1
@@ -57,7 +59,7 @@ repos:
     - pygments
     exclude: |
       (?x)^(
-      setup.py|
+      setup.py|__init__.py
       tests/sample_mod_tests/.*
       )$
 

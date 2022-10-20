@@ -29,7 +29,9 @@ def multiply_fields(
 
 
 @program(backend=gtfn_cpu.run_gtfn)
-def square_fields(a: Field[[CellDim, KDim], float64], result: Field[[CellDim, KDim], float64]):
+def square_fields(
+    a: Field[[CellDim, KDim], float64], result: Field[[CellDim, KDim], float64]
+):
     _multiply_fields(a, a, out=result)
 
 

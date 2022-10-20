@@ -2,10 +2,8 @@ from mpi4py import MPI
 from mpi4py.MPI import Comm
 
 
-
 class RingComm:
-
-    def __init__(self, communicator: Comm, local_grid_size = 24):
+    def __init__(self, communicator: Comm, local_grid_size=24):
         self.ring_comm = MPI.Comm(communicator)
         self.num_procs = self.ring_comm.Get_size()
         self.my_rank = self.ring_comm.Get_rank()
