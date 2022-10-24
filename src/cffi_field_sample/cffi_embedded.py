@@ -48,7 +48,7 @@ def pack(ptr, arr: np.ndarray):
 def square(field_ptr, nx, ny, result_ptr):
     """
     simple python function that squares all entries of a field of
-    size nx times ny and returns a pointer to the result.
+    size nx x ny and returns a pointer to the result.
 
     :param field_ptr:
     :param nx:
