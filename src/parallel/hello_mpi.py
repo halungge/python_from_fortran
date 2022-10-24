@@ -1,4 +1,4 @@
-"""Simple mpi4py hello world program. """
+"""Simple mpi4py hello world program."""
 import numpy as np
 from mpi4py import MPI
 
