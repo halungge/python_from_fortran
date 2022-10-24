@@ -54,11 +54,20 @@ that takes the integer value and returns the communicator instance
 This is not to be confused with the example about [wrapping mpi with numpy.f2py](https://mpi4py.readthedocs.io/en/stable/tutorial.html#wrapping-with-f2py) in the docs.
 
 ### rabbit holes
-using the wrapping option with `numpy.f2py` TODO short description
+* using the wrapping option with `numpy.f2py` 
+it is ab it misleading that the for interfacing the `mpi4py` documentation  only
+mentions Swig (for `Ĉ` and `numpy.f2py`): I tried generating a python binding with `numpy.f2py` for the fortran communication routines in communicator.f90
+and calling these from python after initializing the communicator in fortran. This does not
+work since python has no way knowing which communicator to use. Even though the
+fortran routines use a (Fortran) communicator Id, it is not looked up from the python call
+instead all python processes startet by mpiexec (ie one for each mpi process) start their own 
+communicator in which the only take part alone. 
+
 
 ### How to build and run the example
 Running
 ```bash
+> cd src/parallel
 > python driver_builder.py
 ```
 creates the C shared library that captured by the Fortran interface in [driver.f90](./fortran/driver.f90). It creates 
