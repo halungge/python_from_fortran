@@ -1,4 +1,4 @@
-! run_field_sample.f90
+! simple fortran hello world MPI program: that uses MPI directly
 program run_parallel
     use, intrinsic :: iso_c_binding
     use MPI

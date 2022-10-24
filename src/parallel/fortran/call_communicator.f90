@@ -1,4 +1,4 @@
-! run_field_sample.f90
+! test program: calls the mpi communicator setup in communicator.f90
 program run_parallel
     use, intrinsic :: iso_c_binding
     use communicator
@@ -6,7 +6,7 @@ program run_parallel
 
     integer ierr
     integer(c_int) vdim, GLOBAL_V_NUM, GLOBAL_VX_SIZE, data_size
-    real :: outgoing(24), incoming(24)
+    real(c_double) :: outgoing(24), incoming(24)
 
     incoming = 0
     data_size = 24
@@ -18,7 +18,7 @@ program run_parallel
 
     call exchangeLeft(outgoing, incoming, ierr)
 
-    call cleanup()
+    call cleanup_comm()
 
 end program run_parallel
 

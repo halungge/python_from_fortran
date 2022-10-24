@@ -1,7 +1,7 @@
 """
 Pseudo python driver.
 
-to be used as fortran cffi plugin:functions do
+to be used as fortran cffi plugin. Functions here in do
 1. packing/unpackgin from fortran,
 2. halo exchange using a look up for a fortran defined communicator
 3. call gt4py stencil
