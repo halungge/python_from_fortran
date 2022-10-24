@@ -12,10 +12,11 @@ extern void run(int comm_id,double* input, double* output, int xLength, int yLen
 def compile_cffi_plugin(
     plugin_name: str, c_header: str, cffi_functions_file: str, build_path="."
 ):
-    """Create C shared library.
+    """
+    Create C shared library.
 
-      Create a linkable C library for the functions in {cffi_functions_file} that are decorated
-      with '@ffi.def_extern' and correspond to a C signature in the header string
+    Create a linkable C library for the functions in {cffi_functions_file} that are decorated
+    with '@ffi.def_extern' and correspond to a C signature in the header string
 
     Args:
         plugin_name: name of the plugin, a linkable C library with the name 'lib{plugin_name}.so' will be
