@@ -62,3 +62,12 @@ def square1(state):
     a = state["input"]
     res = square_return(a)
     state["output"] = res
+
+@field_operator
+def _field_copy(a: Field[[CellDim], float])->Field[[CellDim], float64]:
+    return a
+
+@program(backend=gtfn_cpu.run_gtfn)
+def field_copy(a: Field[[CellDim], float], b:Field[[CellDim], float]):
+    _field_copy(a, out=b)
+

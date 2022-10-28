@@ -1,4 +1,4 @@
--e git+https://github.com/GridTools/gt4py.git@functional#egg=gt4py-functional
+-e git+https://github.com/halungge/gt4py.git@persistent_local_runner#egg=gt4py-functional
 
 coverage>=5.0
 darglint>=1.6
@@ -29,5 +29,3 @@ tox>=3.14
 jupytext>=1.14
 cffi>1.5
 matplotlib>=3.5.3
-PyQt5>=5.15.7
-skbuild

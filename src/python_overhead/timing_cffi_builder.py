@@ -8,6 +8,7 @@ build_path = "./build/"
 header = """
 extern void do_nothing(double *, double *);
 extern void  copy_array(double *, double *, int size);
+extern void copy_gt4py(double *, double *, int size);
 """
 
 with open(build_path + "timing_plugin.h", "w") as f:
