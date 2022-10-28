@@ -1,19 +1,11 @@
 import pathlib
 
 import numpy as np
-import functional.otf.compilation.importer as imp
-
+from python_overhead.module_loader import load_precompiled_module
 from timing_plugin import ffi
 
-def load_precompiled_module(entrypoint_name):
-    operator_hash = 'e1f5d85b0bd9044374ad44d3e2eabd47e2d61b2f3335e05b4dc22fd0d244b60e'
-    module_lib_path = '/tmp/gt4py_cache/' + entrypoint_name + '_' + operator_hash + '/bin/' + entrypoint_name + '.cpython-310-x86_64-linux-gnu.so'
-    module_path = pathlib.Path(module_lib_path)
-    module = imp.import_from_path(module_path)
-    compiled_fun = getattr(module, entrypoint_name)
-    return compiled_fun
 
-copy_gt4py = load_precompiled_module('field_copy')
+copy_gt4py_fun = load_precompiled_module('field_copy')
 
 # noqa: D414
 @ffi.def_extern()
@@ -33,7 +25,29 @@ def do_nothing(inp: np.ndarray, outp: np.ndarray):
 def copy_array(inp: np.ndarray, outp: np.ndarray, n: int):
     outp[0:n] = inp[0:n]
 
+
+def unpack(ptr, size) -> np.ndarray:
+    """
+    unpacks c pointer into a numpy array.
+
+    :param ptr: c_pointer to the field
+    :param sizes: tuple[int] the array dimensions
+    :return: a numpy array with shape=(size_y, size_x)
+    and dtype = ctype of the pointer
+    """
+    length = size
+    c_type = ffi.getctype(ffi.typeof(ptr).item)
+    ar = np.frombuffer(
+        ffi.buffer(ptr, length * ffi.sizeof(c_type)),
+        dtype=np.dtype(c_type),
+        count=-1,
+        offset=0,
+    )
+    return ar
+
 @ffi.def_extern()
-def copy_gt4py(inp:np.ndarray, outp:np.ndarray, size:int):
-    copy_gt4py(inp, outp, size, size)
+def copy_gt4py(inp, outp, size:int):
+    inp = unpack(inp, size)
+    outp = unpack(outp, size)
+    copy_gt4py_fun(inp, outp, size, size)
 

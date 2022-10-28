@@ -16,6 +16,13 @@ module python_functions
             real(c_double), intent(in):: inp(size)
             real(c_double), intent(out) :: outp(size)
         end subroutine copy_array_py
+
+        subroutine copy_gt4py(inp, outp, size) bind(c, name='copy_gt4py')
+            use iso_c_binding
+            integer(c_int), value, intent(in)::size
+            real(c_double), intent(in)::inp(size)
+            real(c_double), intent(out)::outp(size)
+        end subroutine copy_gt4py
     end interface
 
 end module python_functions

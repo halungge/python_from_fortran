@@ -4,7 +4,7 @@ import pathlib
 import numpy as np
 from functional.iterator.embedded import np_as_located_field
 
-from python_overhead.gt4py_timings import load_precompiled_module
+from python_overhead.module_loader import load_precompiled_module
 from sample_mod.field_functions import CellDim, field_copy
 
 

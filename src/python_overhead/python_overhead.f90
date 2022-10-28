@@ -6,8 +6,8 @@ program python_overhead
     implicit none
 
     integer(c_int) runs, n
-    real :: ct_start, ct_end, duration_cp_py, duration_cp_f, duration_nt_py, duration_nt_f
-    real(8), DIMENSION(10000000) :: a, res
+    real :: ct_start, ct_end, duration_cp_py, duration_cp_f, duration_nt_py, duration_nt_f, duration_cp_gt4py
+    real(8), DIMENSION(1000000) :: a, res
 
     call random_number(a)
     runs = 100
@@ -44,11 +44,19 @@ program python_overhead
     res = 0.
     call cpu_time(ct_start)
     do n = 0, runs
+        call copy_gt4py(a, res, size(a))
+    end do
+    call cpu_time(ct_end)
+    duration_cp_gt4py = (ct_end - ct_start)/real(runs)
+
+    res = 0.
+    call cpu_time(ct_start)
+    do n = 0, runs
         call copy(a, res)
     end do
     call cpu_time(ct_end)
     duration_cp_f = (ct_end - ct_start)/real(runs)
-    print *, duration_nt_py, ",", duration_nt_f, ",",duration_cp_py, ",", duration_cp_f, ",", runs
+    print *, duration_nt_py, ",", duration_nt_f, ",",duration_cp_py, ",", duration_cp_f, ",", duration_cp_gt4py, ",", runs
 
 
 end program python_overhead
