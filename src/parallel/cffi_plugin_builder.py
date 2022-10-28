@@ -1,14 +1,4 @@
 import cffi
-
-cffi_functions_file = "driver.py"
-build_path = "."
-plugin_name = "driver_plugin"
-c_header = """
-extern void run_cart_step(int comm_id,double* input, double* output, int xLength, int yLength);
-extern void run(int comm_id,double* input, double* output, int xLength, int yLength);
-"""
-
-
 def compile_cffi_plugin(
     plugin_name: str, c_header: str, cffi_functions_file: str, build_path="."
 ):
@@ -46,6 +36,4 @@ def compile_cffi_plugin(
     builder.compile(tmpdir=build_path, target=f"lib{plugin_name}.*", verbose=True)
 
 
-compile_cffi_plugin(
-    plugin_name=plugin_name, c_header=c_header, cffi_functions_file=cffi_functions_file
-)
+

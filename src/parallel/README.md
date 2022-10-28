@@ -95,7 +95,7 @@ Run the example with
 > cd src/parallel
 > python driver_builder.py
 ```
-creates the C shared library that captured by the Fortran interface in [driver.f90](./fortran/driver.f90). It creates 
+creates the C shared library that captured by the Fortran interface in [driver.f90](./fortran/driver_interface.f90). It creates 
 ```commandline
 driver_plugin.h
 driver_plugin.c

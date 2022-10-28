@@ -1,15 +1,9 @@
-! try using MPI communicators when interfaceing between Python and Fortran
-!
-!
-! 1. sets up a communicator: from module communicator.f90
-! 2. initializes some data arrays
-! 3. call a python driver (C module embedding python via cffi):
-!    each MPI process spins up a python interpreter and passes to communicator to be used together with data fields
-!    within Python we do some calculation on the fields and halo exchange (see ../driver.py)
-program run_parallel
+! Created by  on 25.10.22.
+
+program call_python_driver
     use, intrinsic :: iso_c_binding
     use MPI
-    use communicator
+    use communicator_interface
     use driver_interface
     implicit none
 
@@ -20,8 +14,8 @@ program run_parallel
 
     call mpi_init(ierr)
 
-    idim = 24
-    jdim = 144
+    idim = 4
+    jdim = 8
 
     allocate(field(idim, jdim), result_field(idim, jdim))
     field = 0.0
@@ -35,7 +29,4 @@ program run_parallel
     print*, "rank", my_rank, "result:", result_field
 
     call cleanup_comm()
-
-end program run_parallel
-
 

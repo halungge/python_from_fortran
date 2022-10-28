@@ -1,5 +1,5 @@
 ! test program: calls the mpi communicator setup in communicator.f90
-program run_parallel
+program call_fortran_communicator
     use, intrinsic :: iso_c_binding
     use communicator
     implicit none
@@ -20,6 +20,6 @@ program run_parallel
 
     call cleanup_comm()
 
-end program run_parallel
+end program call_fortran_communicator
 
 

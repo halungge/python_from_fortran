@@ -1,21 +1,31 @@
+import mpi4py.MPI
 from mpi4py import MPI
-from mpi4py.MPI import Comm
+from mpi4py.MPI import Comm, Cartcomm
+from ringcomm_plugin import ffi
+
+@ffi.def_extern()
+def setup_comm():
+    comm = RingComm(mpi4py.MPI.COMM_WORLD)
+    return comm.get_fortran_comm_id()
 
 
 class RingComm:
     def __init__(self, communicator: Comm):
-        self.ring_comm = MPI.Cartcomm(communicator)
+        if not MPI.Initialized():
+            mpi4py.MPI.Init()
+        self.ring_comm = Cartcomm(communicator)
         self.ring_comm.Set_name("python_ringcom")
         self.num_procs = self.ring_comm.Get_size()
         self.my_rank = self.ring_comm.Get_rank()
         self.left_neighbor_rank, self.right_neighbor_rank = self.ring_comm.Shift(0, 1)
+
 
     def get_left_rank(self):
         return self.left_neighbor_rank
 
 
     def get_fortran_comm_id(self):
-        return self.ring_comm.f2py()
+        return self.ring_comm.py2f()
 
     def get_right_rank(self):
         return self.right_neighbor_rank
