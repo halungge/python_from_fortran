@@ -1,7 +1,7 @@
 # flake8: noqa D100, D103
 
 import numpy as np
-from functional.fencil_processors.runners import gtfn_cpu, roundtrip
+from functional.program_processors.runners import gtfn_cpu
 from functional.ffront.decorator import field_operator, program
 from functional.ffront.fbuiltins import Dimension, Field, float64
 from functional.iterator.embedded import np_as_located_field
