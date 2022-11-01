@@ -1,4 +1,6 @@
 import cffi
+
+
 def compile_cffi_plugin(
     plugin_name: str, c_header: str, cffi_functions_file: str, build_path="."
 ):
@@ -34,6 +36,3 @@ def compile_cffi_plugin(
     builder.embedding_init_code(module)
 
     builder.compile(tmpdir=build_path, target=f"lib{plugin_name}.*", verbose=True)
-
-
-
