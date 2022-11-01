@@ -82,18 +82,25 @@ halo exchange is done using a previousely defined communicator.
 For simplicity we use a 2D Cartesian field and a Cartesian Topology in the communicator (see [communicator.f90](./fortran/communicator.90))
 
 #### Communicator re-usage
+##### Fortran communicator in Python
 The communicator in Fortran is represented by an integer value. This value needs to be passed to Python such that `mpi4py` 
 can look up the correct communicator from the MPI runtime. To this end
 `mpi4py` provides a method [f2py](https://mpi4py.readthedocs.io/en/stable/reference/mpi4py.MPI.Comm.html#mpi4py.MPI.Comm.f2py)
 that takes the integer value and returns the communicator instance
 in the docs.
 
-
+This is demonstrated by the following example code
+`fortran/communicator.90`: sets up a communicator in Fortran
+`driver.py`: contains python code that calls a `gt4py` stencil and does a halo exchange using the
+the communicator passed on the interface
+`driver_plugin_builder.py`: builds a CFFI wrapper for `driver.py`
+`fortran/call_python_driver.f90`: is a main fortran program that uses all this: 
+It sets up the communicator, calls the python driver by passing it the communicator id.
 
 Run the example with
 ```bash
 > cd src/parallel
-> python driver_builder.py
+> python driver_plugin_builder.py
 ```
 creates the C shared library that captured by the Fortran interface in [driver.f90](./fortran/driver_interface.f90). It creates 
 ```commandline
@@ -102,15 +109,44 @@ driver_plugin.c
 driver_plugin.o
 libdriver_plugin.so
 ```
-in the current (`src/parallel/`) directory. Then
+in the current (`src/parallel/lib`) directory. Then
 
 ```commandline
 > cd fortran
-> export LIB=../
+> export LIB=../lib
 > mpif90 -I$LIB -Wl,-rpath=$LIB -L$LIB  communicator.f90 driver.f90 main.f90 -ldriver_plugin -o run_parallel
 > mpiexec -n 4 ./run_parallel
 ```
 
+##### Fortran communicator in Python
+the opposite also works: a communicator setup in python can be called and used in a Fortran program.
+On a `Comm` instance in `mpi4py` there is the function `comm.py2f()` which returns the integer id of the communicator
+in Fortran.
+This is explored in the following sample code
+* `communicator.py`: sets up a MPI communicator in python
+* `communicator_plugin_builder`: creates it in a CFFI wrapper
+* `fortran/call_python_communicator.f90`: calls the wrapped python function to set up the communicator and does a halo exchange in fortran.
+
+Run the example with
+```bash
+> cd src/parallel
+> python communicator_plugin_builder.py
+```
+creates the C shared library that captured by the Fortran interface in [driver.f90](./fortran/driver_interface.f90). It creates 
+```commandline
+driver_plugin.h
+driver_plugin.c
+driver_plugin.o
+libdriver_plugin.so
+```
+in the current (`src/parallel/lib`) directory. Then
+
+```commandline
+> cd fortran
+> export LIB=../lib
+> mpif90 -I$LIB -Wl,-rpath=$LIB -L$LIB  pycomm_interface.f90 call_python_communicator.f90 -lringcomm_plugin -o run_py_comm
+> mpiexec -n 4 ./run_py_comm
+```
 
 
 
