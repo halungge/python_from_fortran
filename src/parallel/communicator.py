@@ -4,16 +4,17 @@ from mpi4py.MPI import Comm, Cartcomm
 from ringcomm_plugin import ffi
 
 @ffi.def_extern()
-def setup_comm():
+def setup_ringcomm():
     comm = RingComm(mpi4py.MPI.COMM_WORLD)
     return comm.get_fortran_comm_id()
 
 
 class RingComm:
     def __init__(self, communicator: Comm):
-        if not MPI.Initialized():
+        if not MPI.Is_initialized():
             mpi4py.MPI.Init()
-        self.ring_comm = Cartcomm(communicator)
+        comm_size = communicator.Get_size()
+        self.ring_comm = communicator.Create_cart(dims=[1, comm_size], periods=[True, True], reorder=False)
         self.ring_comm.Set_name("python_ringcom")
         self.num_procs = self.ring_comm.Get_size()
         self.my_rank = self.ring_comm.Get_rank()

@@ -1,7 +1,7 @@
 import cffi_plugin_builder
 
 cffi_functions_file = "communicator.py"
-build_path = "./build/"
+build_path = "lib/"
 plugin_name = "ringcomm_plugin"
 c_header = """
 extern int setup_comm();

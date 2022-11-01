@@ -4,8 +4,8 @@ module pycomm
 
     public
     interface
-        function setup_ring_comm() result(comm_id) bind(c, name="setup_ring_comm")
-            integer(comm_id), intent(in) :: y
+    function setup_ring_comm() result(comm_id) bind(c, name="setup_ringcomm")
+            integer :: comm_id
         end function setup_ring_comm
     end interface
 end module pycomm
