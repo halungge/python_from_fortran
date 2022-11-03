@@ -3,7 +3,7 @@ import cffi
 
 builder = cffi.FFI()
 
-build_path = "./build/"
+build_path = "lib/"
 
 header = """
 extern void do_nothing(double *, double *);

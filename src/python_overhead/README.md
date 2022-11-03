@@ -17,7 +17,7 @@ on where they were run...
 
 ## Run
 ```
-> export LIB=./build
+> export LIB=./lib
 > python timing_cffi_builder.py
 > gfortran -I$LIB -Wl,-rpath=$LIB -L$LIB  python_functions_mod.f90 fortran_functions_mod.f90 python_overhead.f90 -ltiming_plugin
 > ./a.out 

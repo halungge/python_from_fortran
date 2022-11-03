@@ -67,7 +67,7 @@ def square1(state):
 def _field_copy(a: Field[[CellDim], float])->Field[[CellDim], float64]:
     return a
 
-@program(backend=gtfn_cpu.run_gtfn)
+@program(backend=gtfn_cpu.run_gtfn_persistent)
 def field_copy(a: Field[[CellDim], float], b:Field[[CellDim], float]):
     _field_copy(a, out=b)
 
