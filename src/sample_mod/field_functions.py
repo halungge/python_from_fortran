@@ -6,6 +6,8 @@ from functional.ffront.decorator import field_operator, program
 from functional.ffront.fbuiltins import Dimension, Field, float64
 from functional.iterator.embedded import np_as_located_field
 
+from parallel.dimensions import IDim
+
 CellDim = Dimension("Cell")
 KDim = Dimension("K")
 VDim = Dimension("Vertex")
@@ -64,10 +66,10 @@ def square1(state):
     state["output"] = res
 
 @field_operator
-def _field_copy(a: Field[[CellDim], float])->Field[[CellDim], float64]:
+def _field_copy(a: Field[[IDim], float64])->Field[[IDim], float64]:
     return a
 
 @program(backend=gtfn_cpu.run_gtfn_persistent)
-def field_copy(a: Field[[CellDim], float], b:Field[[CellDim], float]):
+def field_copy(a: Field[[IDim], float64], b:Field[[IDim], float64]):
     _field_copy(a, out=b)
 
