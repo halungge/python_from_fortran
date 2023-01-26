@@ -5,13 +5,11 @@
 
 namespace {
     void field_copy_impl(
-        gridtools::fortran_array_view<double, 1, gridtools::integral_constants<int,1>> inp,
-        gridtools::fortran_array_view<double, 1, gridtools::integral_constants<int,1>>outp) {
-        auto a = inp
-        long size_a = inp.bindgen_view_rank
-        auto b = outp
-        long size_b = outp.bindgen_view_rank
-        field_copy<(a, b, size_a, size_b)
+        gridtools::fortran_array_view<double, 1> inp,
+        gridtools::fortran_array_view<double, 1>outp) {
+        long size_inp = inp.bindgen_view_rank
+        long size_outp = outp.bindgen_view_rank
+        field_copy(inp, outp, size_inp, size_outp)
     }
 
     BINDGEN_EXPORT_BINDING_WRAPPED_2(field_copy_c, field_copy_impl);
