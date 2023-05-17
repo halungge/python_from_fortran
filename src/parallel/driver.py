@@ -12,16 +12,15 @@ and possible repeat step 2 and 3
 import mpi4py
 import numpy as np
 from driver_plugin import ffi
-from functional.ffront.fbuiltins import Field, float64
-from functional.iterator.embedded import np_as_located_field
+from gt4py.next.ffront.fbuiltins import Field, float64
+from gt4py.next.iterator.embedded import np_as_located_field
+from mpi4py import MPI
 from mpi4py.MPI import Cartcomm, Comm
 
 from parallel.dimensions import IDim, JDim, VDim
 from parallel.operators import cart_laplace, local_invert
 
 mpi4py.rc.initialize = False
-
-from mpi4py import MPI
 
 
 def run_step_invert(comm, inp, recv_buf, send_buf):
@@ -37,10 +36,9 @@ def handle_error(exception, exc_value, traceback):
 
     Args:
         exception: exception thrown in python
-        exc_value: dictionary offering access to the original arguments of the python call
-        traceback:
+        exc_value: error value
+        traceback: dictionary offering access to the original arguments of the python call
 
-    Returns:
     """
     print(f"exception {exception} value {exc_value}")
     if traceback is not None:
@@ -66,10 +64,10 @@ def run_cart_step(
     Run one single step including unpacking, halo exchange and appliation of stencil.
 
     Args:
-        comm_ptr:
-        input_ptr:
-        output_ptr:
-        x_length:
+        comm_ptr: mpi communicator
+        input_ptr: 2d input array
+        output_ptr: 2d output array
+        x_length: shape of the arrays x_length x y_length
         y_length:
     Returns:
     """
