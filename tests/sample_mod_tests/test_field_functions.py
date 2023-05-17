@@ -1,7 +1,7 @@
 # noqa: D100
 import numpy as np
-from functional.ffront.fbuiltins import float64
-from functional.iterator.embedded import np_as_located_field
+from gt4py.next.ffront.fbuiltins import float64
+from gt4py.next.iterator.embedded import np_as_located_field
 
 import sample_mod.field_functions
 from sample_mod.field_functions import CellDim, KDim
